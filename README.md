@@ -1,4 +1,5 @@
-#TwittBaguettes
-##Des Tweets et des Baguettes
-** Application Twitter-Like avec le framework Spring **  
-* Une partie API REST pour gérer les ressources et une partie front avec des appels AJAX pour afficher les données *
+# TwittBaguettes  
+## Des Tweets et des Baguettes  
+Application Twitter-Like avec le framework Spring   
+* Back-end API REST pour gérer les ressources
+* Front-end AJAX pour afficher les ressources

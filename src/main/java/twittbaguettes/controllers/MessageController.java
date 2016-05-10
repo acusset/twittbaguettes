@@ -20,7 +20,6 @@ public class MessageController {
         Message message = null;
         try {
             message = new Message(content);
-//            return message;
             return messageRepository.save(message);
         }
         catch (Exception ex) {

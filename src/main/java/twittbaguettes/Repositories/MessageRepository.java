@@ -1,4 +1,4 @@
-package twittbaguettes.models;
+package twittbaguettes.repositories;
 
 import org.springframework.data.repository.CrudRepository;
 

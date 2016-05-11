@@ -1,14 +1,14 @@
 package twittbaguettes.repositories;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 import javax.transaction.Transactional;
 
 /**
- * Twittbaguettes
+ * Message Crud Repository
  */
 @Transactional
-public interface MessageRepository extends CrudRepository<Message, Long>{
+public interface MessageRepository extends PagingAndSortingRepository<Message, Long>{
 
     public Message findByContent(String content);
 

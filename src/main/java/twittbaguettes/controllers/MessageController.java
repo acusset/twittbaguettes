@@ -85,6 +85,7 @@ public class MessageController {
             @RequestParam(name= "content", required = false) String content,
             @RequestParam(name= "url", required = false) String url,
             @RequestParam(name= "img", required = false) String img) {
+                Message message = new Message(content,url,img);
         return messageRepository.save(message);
     }
 
@@ -136,7 +137,7 @@ public class MessageController {
     @RequestMapping(value = {"/message/exists","/message/exists/"}, method = RequestMethod.GET)
     @ResponseBody
     public Message hasMessage(@RequestParam(name = "id", required = true) String id) {
-        return messageRepository.exisits(new Long(id);
+        return messageRepository.exisits(new Long(id));
     }
 
 }

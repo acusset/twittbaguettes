@@ -1,32 +1,30 @@
 package twittbaguettes.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import twittbaguettes.models.User;
-import twittbaguettes.models.UserRepository;
+import twittbaguettes.repositories.UserRepository;
 
 /**
- * User Controller
+ * User Controller define routes ands methods
  */
 @Controller
 public class UserController {
-    
-    @Autowired
-    private UserRepository userRepository;
-    
+
     /**
      * List all users
      */
     @RequestMapping(value = {"/users", "/users/"}, method = RequestMethod.GET)
     @ResponseBody
-    public List<User> getUsers(
-        @RequestParam(name = "page", required = false, 	defaultValue = 0) int page
-        @RequestParam(name = "perPage", required = false, defaultValue = 5) int perPage) {
+    public Page<User> getUsers(
+            @RequestParam(name = "page", required = false, 	defaultValue = "0") int page,
+            @RequestParam(name = "perPage", required = false, defaultValue = "5") int perPage) {
         // Page par défaut 0, 10 users par page
-        return userRepository.findAll(new Pageable(page,perPage));
+        PageRequest paginator = new PageRequest(page,perPage);
+        return userRepository.findAll(paginator);
     }
 
     /**
@@ -39,7 +37,7 @@ public class UserController {
     }
 
     /**
-     * Create an user
+     * Create a user
      * Parameters in request body (JSON object)
      */
     @RequestMapping(value = {"/user","/user/"}, method = RequestMethod.POST )
@@ -47,75 +45,79 @@ public class UserController {
     public User create(@RequestBody(required = true) User user) {
         return userRepository.save(user);
     }
-    
+
     /**
-     * Create an user
+     * Create a user
      * Parameters in request param (urlencoded) 
      */
-    @RequestMapping(value = {"/user","/user/"}, method = RequestMethod.POST )
-    @ResponseBody
-    public User createUser(
-            @RequestParam(name= "username", required = true) String content,
-            @RequestParam(name= "email", required = false) String url,
-            @RequestParam(name= "password", required = false) String img) {
-                User user = new User(username, password, email, 0)
-        return userRepository.save(user);
-    }
+//    @RequestMapping(value = {"/user","/user/"}, method = RequestMethod.POST )
+//    @ResponseBody
+//    public User createUser(
+//            @RequestParam(name= "username", required = true) String username,
+//            @RequestParam(name= "email", required = true) String email,
+//            @RequestParam(name= "password", required = true) String password) {
+//        User user = new User(username,email,password);
+//        return userRepository.save(user);
+//    }
 
     /**
-     * Edit an user
-     * Parameters in request body (JSON Object)
+     * Edit a user
+     * Parameters in request body (JSON UserObject)
      */
     @RequestMapping(value = {"/user","/user/"}, method = RequestMethod.PUT )
     @ResponseBody
-    public User editUser(@RequestBody(required = true) User user) {
+    public User edit(@RequestBody(required = true) User user) {
         return userRepository.save(user);
     }
 
     /**
-     * Edit an user
+     * Edit a user
      * Params in request (urlencoded)
      */
-    @RequestMapping(value = {"/user","/user/"}, method = RequestMethod.PUT )
-    @ResponseBody
-    public User editUserByURL(
-            @RequestParam(name= "content", required = false) String content,
-            @RequestParam(name= "url", required = false) String url,
-            @RequestParam(name= "img", required = false) String img) {
-        return userRepository.save(user);
-    }
+//    @RequestMapping(value = {"/user","/user/"}, method = RequestMethod.PUT )
+//    @ResponseBody
+//    public User editUserByURL(
+//            @RequestParam(name= "username", required = true) String username,
+//            @RequestParam(name= "email", required = true) String email,
+//            @RequestParam(name= "password", required = true) String password) {
+//        User user = new User(username,email,password);
+//        return userRepository.save(user);
+//    }
 
     /**
-     * Delete an user
+     * Delete a user
      * Parameters in request
      */
-    @RequestMapping(value = {"/user","/user/"}, method = RequestMethod.DELETE)
-    @ResponseBody
-    public User deleteUserById(@RequestParam(name = "id", required = true) String id) {
-        try {
-            Long id = Long.parseLong(id);
-            if(userRepository.exists(id) {
-               return userRepository.delete(id);
-            } else {
-                // TODO : UserNotFoundException
-            }
-        } catch(Exception e) {
-            // TODO : Bad Request ?
-        }
-    }
-    
+//    @RequestMapping(value = {"/user","/user/"}, method = RequestMethod.DELETE)
+//    @ResponseBody
+//    public boolean deleteUserById(@RequestParam(name = "id", required = true) Long id) {
+//        try {
+//            if(userRepository.exists(id)) {
+//                userRepository.delete(id);
+//                return true;
+//            } else {
+//                // TODO : UserNotFoundException
+//            }
+//        } catch(Exception e) {
+//            // TODO : Bad Request ?
+//        }
+//        return false;
+//    }
+
     /**
-     * Delete an user
+     * Delete a user
      * Parameters in request body (JSON Object)
      */
     @RequestMapping(value = {"/user","/user/"}, method = RequestMethod.DELETE)
     @ResponseBody
-    public User deleteUser(@RequestBody(required = true) User messagae) {
-        if(userRepository.exists(messagae) {
-           return userRepository.delete(user);
+    public boolean delete(@RequestBody(required = true) User user) {
+        if(userRepository.exists(user.getId())) {
+            userRepository.delete(user);
+            return true;
         } else {
             // UserNotFoundException
         }
+        return false;
     }
 
     /**
@@ -123,7 +125,7 @@ public class UserController {
      */
     @RequestMapping(value = {"/user/count","/user/count/"}, method = RequestMethod.GET)
     @ResponseBody
-    public User countUsers() {
+    public Long count() {
         return userRepository.count();
     }
 
@@ -132,7 +134,13 @@ public class UserController {
      */
     @RequestMapping(value = {"/user/exists","/user/exists/"}, method = RequestMethod.GET)
     @ResponseBody
-    public User hasUser(@RequestParam(name = "id", required = true) String id) {
-        return userRepository.exisits(new Long(id));
+    public boolean has(@RequestParam(name = "id", required = true) Long id) {
+        return userRepository.exists(id);
     }
+
+    /**
+     * Dependancy Injection
+     */
+    @Autowired
+    private UserRepository userRepository;
 }

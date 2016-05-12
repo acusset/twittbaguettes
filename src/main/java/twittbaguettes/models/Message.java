@@ -1,10 +1,9 @@
 package twittbaguettes.models;
 
-import javax.persistence.Id;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Table;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 
 /**
  * Message Model
@@ -32,10 +31,29 @@ public class Message {
     @Size(min = 5, max = 254)
     private String img;
 
+    @Column(name = "created_at", unique = false, nullable = false)
+    private LocalDateTime createdAt;
+
     public Message() { }
 
     public Message(String content) {
         this.content = content;
+    }
+
+    public Message(String content, String img, String url) {
+        this.content = content;
+        this.img = img;
+        this.url = url;
+        this.createdAt = LocalDateTime.now();
+
+    }
+
+    public Message(String content, String img, String url, LocalDateTime createdAt) {
+        this.content = content;
+        this.img = img;
+        this.url = url;
+        this.createdAt = createdAt;
+
     }
 
     public long getId() {
@@ -54,6 +72,10 @@ public class Message {
         return img;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
 //    public void setId(long id) {
 //         this.id = id;
 //    }
@@ -69,7 +91,10 @@ public class Message {
     public void setImg(String img) {
         this.img = img;
     }
-    
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
     /**
      * TODO : déplacer dans un MessageService
      * Désinfecte le message avant de l'enregistrer
@@ -78,7 +103,7 @@ public class Message {
      * - Echapement des characteres
      * - Etc.
      */
-    private function sanitize() {
+    private void sanitize() {
         
     }
 }

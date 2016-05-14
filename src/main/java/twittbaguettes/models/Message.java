@@ -1,9 +1,11 @@
 package twittbaguettes.models;
 
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
 
 /**
  * Message Model
@@ -24,15 +26,21 @@ public class Message {
     private String content;
     
     @Column(name = "url", unique = false, nullable = true, length = 254)
-    @Size(min = 5, max = 254)
     private String url;
     
     @Column(name = "img", unique = false, nullable = true, length = 254)
-    @Size(min = 5, max = 254)
     private String img;
 
-    @Column(name = "created_at", unique = false, nullable = false)
-    private LocalDateTime createdAt;
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    private DateTime createdDate;
+
+    @OneToOne(targetEntity = User.class)
+    @JoinColumn(name = "user_id")
+    private User author;
+
+    public void setAuthor(User author) {
+        this.author = author;
+    }
 
     public Message() { }
 
@@ -44,16 +52,8 @@ public class Message {
         this.content = content;
         this.img = img;
         this.url = url;
-        this.createdAt = LocalDateTime.now();
-
-    }
-
-    public Message(String content, String img, String url, LocalDateTime createdAt) {
-        this.content = content;
-        this.img = img;
-        this.url = url;
-        this.createdAt = createdAt;
-
+        this.createdDate = DateTime.now();
+//        this.author = new User("test","test","test");
     }
 
     public long getId() {
@@ -72,13 +72,13 @@ public class Message {
         return img;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public DateTime getCreatedDate() {
+        return createdDate;
     }
 
-//    public void setId(long id) {
-//         this.id = id;
-//    }
+    public User getAuthor() {
+        return author;
+    }
 
     public void setContent(String content) {
         this.content = content;
@@ -92,9 +92,10 @@ public class Message {
         this.img = img;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setCreatedDate(DateTime createdDate) {
+        this.createdDate = createdDate;
     }
+
     /**
      * TODO : déplacer dans un MessageService
      * Désinfecte le message avant de l'enregistrer

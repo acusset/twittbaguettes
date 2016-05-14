@@ -1,5 +1,6 @@
 package twittbaguettes.controllers;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,6 +14,12 @@ import twittbaguettes.repositories.MessageRepository;
  */
 @Controller
 public class MessageController {
+
+    /**
+     * Dependancy Injection
+     */
+    @Autowired
+    private MessageRepository messageRepository;
 
     /**
      * List all messages
@@ -33,32 +40,38 @@ public class MessageController {
     @RequestMapping(value = {"/message","/message/"}, method = RequestMethod.GET)
     @ResponseBody
     public Message getMessage(@RequestParam(name = "id", required = true) String id) {
-        return messageRepository.findOne(new Long(id));
+        Long identifier = new Long(id);
+        if(messageRepository.exists(identifier)) {
+            return messageRepository.findOne(identifier);
+        } else {
+            // TODO : Message Not Found Exception
+        }
+        return null;
     }
 
     /**
      * Create a message
      * Parameters in request body (JSON object)
      */
-    @RequestMapping(value = {"/message","/message/"}, method = RequestMethod.POST )
-    @ResponseBody
-    public Message create(@RequestBody(required = true) Message message) {
-        return messageRepository.save(message);
-    }
+//    @RequestMapping(value = {"/message","/message/"}, method = RequestMethod.POST )
+//    @ResponseBody
+//    public Message create(@RequestBody(required = true) Message message) {
+//        return messageRepository.save(message);
+//    }
     
     /**
      * Create a message
      * Parameters in request param (urlencoded) 
      */
-//    @RequestMapping(value = {"/message","/message/"}, method = RequestMethod.POST )
-//    @ResponseBody
-//    public Message createMessage(
-//            @RequestParam(name= "content", required = true) String content,
-//            @RequestParam(name= "url", required = false) String url,
-//            @RequestParam(name= "img", required = false) String img) {
-//        Message message = new Message(content,img,url);
-//        return messageRepository.save(message);
-//    }
+    @RequestMapping(value = {"/message","/message/"}, method = RequestMethod.POST )
+    @ResponseBody
+    public Message createMessage(
+            @RequestParam(name= "content", required = true) String content,
+            @RequestParam(name= "url", required = false, defaultValue = "") String url,
+            @RequestParam(name= "img", required = false, defaultValue = "") String img) {
+        Message message = new Message(content,img,url);
+        return messageRepository.save(message);
+    }
 
     /**
      * Edit a message
@@ -88,37 +101,37 @@ public class MessageController {
      * Delete a message
      * Parameters in request
      */
-//    @RequestMapping(value = {"/message","/message/"}, method = RequestMethod.DELETE)
-//    @ResponseBody
-//    public boolean deleteMessageById(@RequestParam(name = "id", required = true) Long id) {
-//        try {
-//            if(messageRepository.exists(id)) {
-//               messageRepository.delete(id);
-//                return true;
-//            } else {
-//                // TODO : MessageNotFoundException
-//            }
-//        } catch(Exception e) {
-//            // TODO : Bad Request ?
-//        }
-//        return false;
-//    }
+    @RequestMapping(value = {"/message","/message/"}, method = RequestMethod.DELETE)
+    @ResponseBody
+    public boolean deleteMessageById(@RequestParam(name = "id", required = true) Long id) {
+        try {
+            if(messageRepository.exists(id)) {
+               messageRepository.delete(id);
+                return true;
+            } else {
+                // TODO : MessageNotFoundException
+            }
+        } catch(Exception e) {
+            // TODO : Bad Request ?
+        }
+        return false;
+    }
     
     /**
      * Delete a message
      * Parameters in request body (JSON Object)
      */
-    @RequestMapping(value = {"/message","/message/"}, method = RequestMethod.DELETE)
-    @ResponseBody
-    public boolean delete(@RequestBody(required = true) Message message) {
-        if(messageRepository.exists(message.getId())) {
-           messageRepository.delete(message);
-            return true;
-        } else {
-            // MessageNotFoundException
-        }
-        return false;
-    }
+//    @RequestMapping(value = {"/message","/message/"}, method = RequestMethod.DELETE)
+//    @ResponseBody
+//    public boolean delete(@RequestBody(required = true) Message message) {
+//        if(messageRepository.exists(message.getId())) {
+//           messageRepository.delete(message);
+//            return true;
+//        } else {
+//            // MessageNotFoundException
+//        }
+//        return false;
+//    }
 
     /**
      * Retrieve one message by his id
@@ -138,9 +151,4 @@ public class MessageController {
         return messageRepository.exists(id);
     }
 
-    /**
-     * Dependancy Injection
-     */
-    @Autowired
-    private MessageRepository messageRepository;
 }

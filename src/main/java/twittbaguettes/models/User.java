@@ -1,8 +1,14 @@
 package twittbaguettes.models;
 
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
+import org.springframework.data.annotation.CreatedDate;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 
 /**
@@ -23,7 +29,7 @@ public class User {
     @Size(min = 3, max = 35)
     private String username;
 
-    @Column(name = "password", unique = true, nullable = false, length = 60)
+    @Column(name = "password", unique = false, nullable = false, length = 60)
     @NotNull
     @Size(min = 10, max = 60)
     private String password;
@@ -33,13 +39,12 @@ public class User {
     @Size(min = 10, max = 35)
     private String email;
 
-//    @Column(name = "api_key", unique = true, nullable = true, length = 60)
-//    @Size(min = 0, max = 60)
-//    private String apiKey = "";
+    @Column(name = "api_key", unique = true, nullable = true, length = 60)
+    @Size(min = 0, max = 60)
+    private String apiKey = "";
 
-//    @Column(name = "created_at", unique = false, nullable = false)
-//    @NotNull
-//    private LocalDateTime createdAt;
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    private DateTime createdDate;
 
     /**
      * True if Admin, False if not
@@ -57,8 +62,9 @@ public class User {
         this.password = password;
         this.email = email;
         this.role = 0;
-//        this.createdAt = LocalDateTime.now();
-//        this.apiKey = "000000000000000000000000000000000000000000000000000000000";
+        this.createdDate = DateTime.now();
+        // TODO : générer la clé aléatoirement dans un KeyService
+        this.apiKey = new BigInteger(60, new SecureRandom()).toString(60);
     }
 
     /**
@@ -81,17 +87,23 @@ public class User {
         return this.email;
     }
 
-//    public String getApiKey() {
-//        return this.apiKey;
-//    }
+    public String getApiKey() {
+        return this.apiKey;
+    }
 
-//    public LocalDateTime getCreatedAt() {
-//        return this.createdAt;
-//    }
+    public DateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(DateTime createdDate) {
+        this.createdDate = createdDate;
+    }
 
     public long getRole() {
         return this.role;
     }
+
+
 
     /**
      * Setters
@@ -116,13 +128,9 @@ public class User {
         this.email = email;
     }
 
-//    public void setApiKey(String apiKey) {
-//        this.apiKey = apiKey;
-//    }
-
-//    public void setCreatedAt(LocalDateTime createdAt) {
-//        this.createdAt = createdAt;
-//    }
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
+    }
 
     public void setRole(int role) {
         this.role = role;
@@ -136,14 +144,14 @@ public class User {
      * Test if user is admin
      * @return boolean
      */
-    public boolean isAdmin() {
-        return 1 == this.role;
-    }
+//    public boolean isAdmin() {
+//        return 1 == this.role;
+//    }
 
     /**
      * Promote an user to admin
      */
-    public void setAdmin() {
+    public void promoteAdmin() {
         this.role = 1;
     }
 
@@ -151,7 +159,7 @@ public class User {
      * Revoke admin rights from an user
      */
     public void revokeAdmin() {
-        if (this.isAdmin()) {
+        if (this.role == 1) {
             this.role = 0;
         }
     }

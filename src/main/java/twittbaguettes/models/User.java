@@ -1,15 +1,12 @@
 package twittbaguettes.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
-import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.time.LocalDateTime;
 
 /**
  * @author Antoine Cusset
@@ -20,37 +17,13 @@ import java.time.LocalDateTime;
 @Table(name = "users")
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-
-    @Column(name = "username", unique = true, nullable = false, length = 35)
-    @NotNull
-    @Size(min = 3, max = 35)
     private String username;
-
-    @Column(name = "password", unique = false, nullable = false, length = 60)
-    @NotNull
-    @Size(min = 10, max = 60)
     private String password;
-
-    @Column(name = "email", unique = true, nullable = false, length = 254)
-    @NotNull
-    @Size(min = 10, max = 35)
     private String email;
-
-    @Column(name = "api_key", unique = true, nullable = true, length = 60)
-    @Size(min = 0, max = 60)
     private String apiKey = "";
-
-    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    private DateTime createdDate;
-
-    /**
-     * True if Admin, False if not
-     */
-    @Column(name = "role", unique = false, nullable = false)
-    private int role;
+    private boolean role;
+    private DateTime createdAt;
 
     /**
      * Empty Constructor for JPA
@@ -61,8 +34,8 @@ public class User {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.role = 0;
-        this.createdDate = DateTime.now();
+        this.role = false;
+        this.createdAt = DateTime.now();
         // TODO : générer la clé aléatoirement dans un KeyService
         this.apiKey = new BigInteger(60, new SecureRandom()).toString(60);
     }
@@ -71,50 +44,53 @@ public class User {
      * Getters
      */
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     public long getId() {
         return this.id;
     }
 
+    @Column(name = "username", unique = true, nullable = false, length = 35)
     public String getUsername() {
         return this.username;
     }
 
+    @Column(name = "password", unique = false, nullable = false, length = 60)
+    @JsonIgnore
     public String getPassword() {
         return this.password;
     }
 
+    @Column(name = "email", unique = true, nullable = false, length = 254)
     public String getEmail() {
         return this.email;
     }
 
+    @Column(name = "api_key", unique = true, nullable = true, length = 60)
+    @JsonIgnore
     public String getApiKey() {
         return this.apiKey;
     }
 
-    public DateTime getCreatedDate() {
-        return createdDate;
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    @Column(name = "created_at", unique = false, nullable = false)
+    public DateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreatedDate(DateTime createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public long getRole() {
+    @Column(name = "role", unique = false, nullable = false)
+    public boolean getRole() {
         return this.role;
     }
-
-
 
     /**
      * Setters
      */
 
-    /**
-     * L'id est géré par JPA et NE DOIT PAS être modifié par un setter
-     */
-//    public void setId(long id) {
-//        this.id = id;
-//    }
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public void setUsername(String username) {
         this.username = username;
@@ -132,35 +108,31 @@ public class User {
         this.apiKey = apiKey;
     }
 
-    public void setRole(int role) {
+    public void setRole(boolean role) {
         this.role = role;
     }
 
-    /**
-     * Functions
-     */
+    public void setCreatedAt(DateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
     /**
-     * Test if user is admin
-     * @return boolean
+     * Public functions
      */
-//    public boolean isAdmin() {
-//        return 1 == this.role;
-//    }
 
     /**
      * Promote an user to admin
      */
     public void promoteAdmin() {
-        this.role = 1;
+        this.role = true;
     }
 
     /**
      * Revoke admin rights from an user
      */
     public void revokeAdmin() {
-        if (this.role == 1) {
-            this.role = 0;
+        if (this.role) {
+            this.role = false;
         }
     }
 }

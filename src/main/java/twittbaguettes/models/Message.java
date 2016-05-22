@@ -4,43 +4,28 @@ import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 /**
  * Message Model
+ *
  * @Column est destiné à la base de données
  * @NotNull et @Size pour les validateurs Spring (à venir...)
  */
 @Entity
 @Table(name = "messages")
-public class Message {
+public class Message implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-
-    @Column(name = "content", unique = false, nullable = false, length = 254)
-    @NotNull
-    @Size(min = 1, max = 254)
     private String content;
-    
-    @Column(name = "url", unique = false, nullable = true, length = 254)
     private String url;
-    
-    @Column(name = "img", unique = false, nullable = true, length = 254)
     private String img;
-
-    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     private DateTime createdDate;
-
-    @OneToOne(targetEntity = User.class)
-    @JoinColumn(name = "user_id")
     private User author;
 
-    public void setAuthor(User author) {
-        this.author = author;
-    }
+    /**
+     * Constructors
+     */
 
     public Message() { }
 
@@ -56,44 +41,70 @@ public class Message {
 //        this.author = new User("test","test","test");
     }
 
+    /**
+     * Getters
+     */
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false, insertable = true, updatable = true)
     public long getId() {
         return id;
     }
 
+    @Column(name = "content", unique = false, nullable = false, length = 254)
     public String getContent() {
         return content;
     }
 
+    @Column(name = "url", unique = false, nullable = true, length = 254)
     public String getUrl() {
         return url;
     }
-    
+
+    @Column(name = "img", unique = false, nullable = true, length = 254)
     public String getImg() {
         return img;
     }
 
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    @Column(name = "created_at", unique = false, nullable = false)
     public DateTime getCreatedDate() {
         return createdDate;
     }
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", nullable = false)
     public User getAuthor() {
         return author;
+    }
+
+    /**
+     * Setters
+     */
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public void setContent(String content) {
         this.content = content;
     }
-    
-    public void setUrl(String content) {
+
+    public void setUrl(String url) {
         this.url = url;
     }
-    
+
     public void setImg(String img) {
         this.img = img;
     }
 
     public void setCreatedDate(DateTime createdDate) {
         this.createdDate = createdDate;
+    }
+
+    public void setAuthor(User author) {
+        this.author = author;
     }
 
     /**
@@ -105,6 +116,6 @@ public class Message {
      * - Etc.
      */
     private void sanitize() {
-        
+
     }
 }

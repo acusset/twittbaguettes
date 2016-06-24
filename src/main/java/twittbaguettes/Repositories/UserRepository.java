@@ -1,18 +1,19 @@
 package twittbaguettes.repositories;
 
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import twittbaguettes.models.User;
 
 /**
  * Repository Interface
- * TODO : implémenter une classe et les fonctions ci-dessous
+ * Hibernate se charge d'implementer les fonctions de recherche simples comme celles là
  * @author Antoine Cusset
  */
 public interface UserRepository extends PagingAndSortingRepository<User,Long> {
     
-    public User findByUsername(String username);
+    User findByUsername(String username);
     
-    public User findByEmail(String email);
+    User findByEmail(String email);
     
-//    public User findByApiKey(String apiKey);
+    User findByApiKey(String apiKey);
 }

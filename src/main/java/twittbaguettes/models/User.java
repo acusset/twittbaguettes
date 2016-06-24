@@ -7,6 +7,8 @@ import org.joda.time.DateTime;
 import javax.persistence.*;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Antoine Cusset
@@ -20,9 +22,11 @@ public class User {
     private long id;
     private String username;
     private String password;
+    private boolean enabled;
     private String email;
+    private Set<Role> role = new HashSet<Role>(0);
     private String apiKey = "";
-    private boolean role;
+
     private DateTime createdAt;
 
     /**
@@ -34,7 +38,7 @@ public class User {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.role = false;
+        this.enabled = true;
         this.createdAt = DateTime.now();
         // TODO : générer la clé aléatoirement dans un KeyService
         this.apiKey = new BigInteger(60, new SecureRandom()).toString(60);
@@ -46,7 +50,6 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
     public long getId() {
         return this.id;
     }
@@ -60,6 +63,11 @@ public class User {
     @JsonIgnore
     public String getPassword() {
         return this.password;
+    }
+
+    @Column(name = "enabled", nullable = false)
+    public boolean isEnabled() {
+        return enabled;
     }
 
     @Column(name = "email", unique = true, nullable = false, length = 254)
@@ -79,12 +87,12 @@ public class User {
         return createdAt;
     }
 
-    @Column(name = "role", unique = false, nullable = false)
-    public boolean getRole() {
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    public Set<Role> getRole() {
         return this.role;
     }
 
-    /**
+     /**
      * Setters
      */
 
@@ -100,6 +108,10 @@ public class User {
         this.password = password;
     }
 
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     public void setEmail(String email) {
         this.email = email;
     }
@@ -108,31 +120,23 @@ public class User {
         this.apiKey = apiKey;
     }
 
-    public void setRole(boolean role) {
-        this.role = role;
-    }
-
     public void setCreatedAt(DateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public void setRole(Set<Role> role) {
+        this.role = role;
     }
 
     /**
      * Public functions
      */
-
-    /**
-     * Promote an user to admin
-     */
-    public void promoteAdmin() {
-        this.role = true;
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                '}';
     }
 
-    /**
-     * Revoke admin rights from an user
-     */
-    public void revokeAdmin() {
-        if (this.role) {
-            this.role = false;
-        }
-    }
 }

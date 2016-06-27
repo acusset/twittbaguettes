@@ -1,6 +1,8 @@
 package twittbaguettes.models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 /**
@@ -14,6 +16,7 @@ import javax.persistence.*;
 public class Role {
 
     private long id;
+    @JsonIgnore
     private User user;
     private String role;
 

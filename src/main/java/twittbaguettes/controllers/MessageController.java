@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import twittbaguettes.models.Message;
 import twittbaguettes.repositories.MessageRepository;
+import twittbaguettes.repositories.UserRepository;
 
 /**
  * Message Controller define routes ands methods
@@ -19,6 +20,8 @@ public class MessageController {
      */
     @Autowired
     private MessageRepository messageRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     /**
      * List all messages
@@ -69,6 +72,7 @@ public class MessageController {
             @RequestParam(name= "url", required = false, defaultValue = "") String url,
             @RequestParam(name= "img", required = false, defaultValue = "") String img) {
         Message message = new Message(content,img,url);
+        message.setUser(userRepository.findByUsername("Admin"));
         return messageRepository.save(message);
     }
 

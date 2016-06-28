@@ -20,8 +20,8 @@ public class Role {
     private User user;
     private String role;
 
-    public final static String ROLE_ADMIN = "admin";
-    public final static String ROLE_USER = "user";
+    public final static String ROLE_ADMIN = "ADMIN";
+    public final static String ROLE_USER = "USER";
 
     public Role() { }
 

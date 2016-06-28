@@ -13,7 +13,10 @@ import twittbaguettes.models.User;
 import twittbaguettes.repositories.MessageRepository;
 import twittbaguettes.repositories.RoleRepository;
 import twittbaguettes.repositories.UserRepository;
+
 import javax.annotation.PostConstruct;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 
 
 @SpringBootApplication
@@ -36,19 +39,30 @@ public class Application {
         userRepository.deleteAll();
         messageRepository.deleteAll();
 
-        User antoine = new User("Antoine","antoine.cusset@gmail.com","password1");
-        User user = new User("User","user@gmail.com","password2");
+        User admin = new User("Admin", "admin@gmail.com", "password1");
+        User user = new User("User", "user@gmail.com", "password2");
 
-        userRepository.save(antoine);
-        roleRepository.save(new Role(userRepository.findByUsername("Antoine"), Role.ROLE_ADMIN));
+        userRepository.save(admin);
+        roleRepository.save(new Role(admin, Role.ROLE_ADMIN));
 
         userRepository.save(user);
         roleRepository.save(new Role(userRepository.findByUsername("User"), Role.ROLE_USER));
 
-//        Message message = new Message("Salut, ça va ?", userRepository.findByUsername("Antoine"));
-//        messageRepository.save(message);
-//        message = new Message("Salut, comment ça va ?", userRepository.findByUsername("User"));
-//        messageRepository.save(message);
+        admin = userRepository.findByUsername("Admin");
+        user = userRepository.findByUsername("User");
+
+        messageRepository.save(new Message("Salut, ça va ?", admin));
+        messageRepository.save(new Message("message créer en trouvant un user tout seul", user));
+
+        // Ajoute des messages aléatoires
+        for (int i = 50; i <= 250; i++) {
+            String texte = new BigInteger(i, new SecureRandom()).toString(i);
+            if (i % 2 == 0) {
+                messageRepository.save(new Message(texte, admin));
+            } else {
+                messageRepository.save(new Message(texte, user));
+            }
+        }
     }
 
 }

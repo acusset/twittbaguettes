@@ -1,6 +1,7 @@
 package twittbaguettes.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 
@@ -17,6 +18,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
 
     private long id;
@@ -25,8 +27,9 @@ public class User {
     private boolean enabled;
     private String email;
     private Set<Role> role = new HashSet<Role>(0);
+    @JsonIgnore
+    private Set<Message> messages = new HashSet<Message>(0);
     private String apiKey = "";
-
     private DateTime createdAt;
 
     /**
@@ -92,6 +95,11 @@ public class User {
         return this.role;
     }
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    public Set<Message> getMessages() {
+        return messages;
+    }
+
      /**
      * Setters
      */
@@ -126,6 +134,10 @@ public class User {
 
     public void setRole(Set<Role> role) {
         this.role = role;
+    }
+
+    public void setMessages(Set<Message> messages) {
+        this.messages = messages;
     }
 
     /**

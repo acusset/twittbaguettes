@@ -20,11 +20,29 @@ import java.io.Serializable;
 public class Message implements Serializable {
 
     private long id;
+    /**
+     * Le contenu du message / texte
+     */
     private String content;
+
+    /**
+     * Si un message contient un lien externe
+     */
     private String url;
+
+    /**
+     * Si on veut ajouter une image au message
+     */
     private String img;
+
+    /**
+     * Timestamp de création
+     */
     private DateTime createdAt;
-    @JsonIgnore
+
+    /**
+     * L'auteur du message
+     */
     private User user;
 
     private UserRepository userRepository;
@@ -43,20 +61,11 @@ public class Message implements Serializable {
         this.url = null;
     }
 
-    public Message(String content) {
-        this.content = content;
-        this.createdAt = DateTime.now();
-        this.user = userRepository.findOne(new Long(1));
-        this.img = null;
-        this.url = null;
-    }
-
     public Message(String content, String img, String url) {
         this.content = content;
         this.img = img;
         this.url = url;
         this.createdAt = DateTime.now();
-//        this.user = user;
     }
 
     /**
@@ -135,17 +144,5 @@ public class Message implements Serializable {
      */
     private void sanitize() {
 
-    }
-
-    @Override
-    public String toString() {
-        return "Message{" +
-                "id=" + id +
-                ", content='" + content + '\'' +
-                ", url='" + url + '\'' +
-                ", img='" + img + '\'' +
-                ", createdAt=" + createdAt +
-                ", user=" + user +
-                '}';
     }
 }

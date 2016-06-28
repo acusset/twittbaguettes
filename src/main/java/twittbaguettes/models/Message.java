@@ -1,7 +1,10 @@
 package twittbaguettes.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
+import twittbaguettes.repositories.UserRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -20,8 +23,11 @@ public class Message implements Serializable {
     private String content;
     private String url;
     private String img;
-    private DateTime createdDate;
-    private User author;
+    private DateTime createdAt;
+    @JsonIgnore
+    private User user;
+
+    private UserRepository userRepository;
 
     /**
      * Constructors
@@ -29,16 +35,28 @@ public class Message implements Serializable {
 
     public Message() { }
 
+    public Message(String content, User user) {
+        this.content = content;
+        this.createdAt = DateTime.now();
+        this.user = user;
+        this.img = null;
+        this.url = null;
+    }
+
     public Message(String content) {
         this.content = content;
+        this.createdAt = DateTime.now();
+        this.user = userRepository.findOne(new Long(1));
+        this.img = null;
+        this.url = null;
     }
 
     public Message(String content, String img, String url) {
         this.content = content;
         this.img = img;
         this.url = url;
-        this.createdDate = DateTime.now();
-//        this.author = new User("test","test","test");
+        this.createdAt = DateTime.now();
+//        this.user = user;
     }
 
     /**
@@ -69,14 +87,14 @@ public class Message implements Serializable {
 
     @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     @Column(name = "created_at", unique = false, nullable = false)
-    public DateTime getCreatedDate() {
-        return createdDate;
+    public DateTime getCreatedAt() {
+        return createdAt;
     }
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    public User getAuthor() {
-        return author;
+    public User getUser() {
+        return user;
     }
 
     /**
@@ -99,12 +117,12 @@ public class Message implements Serializable {
         this.img = img;
     }
 
-    public void setCreatedDate(DateTime createdDate) {
-        this.createdDate = createdDate;
+    public void setCreatedAt(DateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public void setAuthor(User author) {
-        this.author = author;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     /**
@@ -117,5 +135,17 @@ public class Message implements Serializable {
      */
     private void sanitize() {
 
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "id=" + id +
+                ", content='" + content + '\'' +
+                ", url='" + url + '\'' +
+                ", img='" + img + '\'' +
+                ", createdAt=" + createdAt +
+                ", user=" + user +
+                '}';
     }
 }

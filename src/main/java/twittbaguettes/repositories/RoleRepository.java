@@ -6,9 +6,10 @@ import twittbaguettes.models.Role;
 /**
  * Twittbaguettes
  *
- * @author Antoine on 23/05/2016.
- *         -- Description du fichier --
+ * @author Antoine on 23/05/2016
  */
 public interface RoleRepository extends CrudRepository<Role, Long> {
+
+    Role findByUserId(Long id);
 
 }

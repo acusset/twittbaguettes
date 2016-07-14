@@ -2,6 +2,7 @@ package twittbaguettes.models;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 
@@ -15,13 +16,15 @@ import javax.persistence.*;
 @Table(name = "roles")
 public class Role {
 
+    public final static String ROLE_ADMIN = "ADMIN";
+    public final static String ROLE_USER = "USER";
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private long id;
     @JsonIgnore
     private User user;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String role;
-
-    public final static String ROLE_ADMIN = "ADMIN";
-    public final static String ROLE_USER = "USER";
 
     public Role() { }
 
@@ -40,7 +43,7 @@ public class Role {
         return id;
     }
 
-    @Column(name = "role", nullable = false, unique = true, length = 50)
+    @Column(name = "role", nullable = false, length = 50)
     public String getRole() {
         return role;
     }

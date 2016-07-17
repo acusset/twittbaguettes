@@ -1,11 +1,8 @@
-/**
- * Created by Wafae on 20/06/2016.
- */
-
 var User = Backbone.Model.extend({
 
-    initialize: function() {
-        console.log("Initialisation d'un user");
+    initialize: function(attributes) {
+        this.createdAt = new moment(attributes.createdAt);
+        this.set("LastLogin", this.createdAt.fromNow());
     },
 
     defaults: {
@@ -20,9 +17,5 @@ var User = Backbone.Model.extend({
 
     idAttribute: "id",
 
-    urlRoot: "/user",
-
-    url: function () {
-        return this.urlRoot + "?id=" + this.id
-    }
+    urlRoot: "/user"
 });

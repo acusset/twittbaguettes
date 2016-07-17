@@ -1,11 +1,16 @@
 package twittbaguettes.controllers;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import twittbaguettes.models.Role;
 import twittbaguettes.models.User;
+import twittbaguettes.repositories.RoleRepository;
 import twittbaguettes.repositories.UserRepository;
 
 /**
@@ -19,6 +24,8 @@ public class UserController {
      */
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
     /**
      * List all users
@@ -26,122 +33,95 @@ public class UserController {
     @RequestMapping(value = {"/users", "/users/"}, method = RequestMethod.GET)
     @ResponseBody
     public Page<User> getUsers(
-            @RequestParam(name = "page", required = false, 	defaultValue = "0") int page,
+            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "perPage", required = false, defaultValue = "5") int perPage) {
-        // Page par défaut 0, 10 users par page
-        PageRequest paginator = new PageRequest(page,perPage);
+        // Page par défaut 0, 5 users par page
+        PageRequest paginator = new PageRequest(page, perPage);
         return userRepository.findAll(paginator);
     }
 
     /**
      * Retrieve one user by his id
      */
-    @RequestMapping(value = {"/user","/user/"}, method = RequestMethod.GET)
+    @RequestMapping(value = "/user/{id}", method = RequestMethod.GET)
     @ResponseBody
-    public User getUser(@RequestParam(name = "id", required = true) String id) {
-        return userRepository.findOne(new Long(id));
+    public ResponseEntity<User> getUser(@PathVariable("id") Long id) {
+        User user = userRepository.findOne(id);
+        if (user == null) {
+            return new ResponseEntity<>(new User(), HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        }
     }
 
     /**
-     * Create a user
+     * Create an user
      * Parameters in request body (JSON object)
      */
-//    @RequestMapping(value = {"/user","/user/"}, method = RequestMethod.POST )
-//    @ResponseBody
-//    public User create(@RequestBody(required = true) User user) {
-//        return userRepository.save(user);
-//    }
-
-    /**
-     * Create a user
-     * Parameters in request param (urlencoded) 
-     */
-    @RequestMapping(value = {"/user","/user/"}, method = RequestMethod.POST )
+    @RequestMapping(value = {"/user", "/user/"}, method = RequestMethod.POST)
     @ResponseBody
-    public User createUser(
-            @RequestParam(name= "username", required = true) String username,
-            @RequestParam(name= "email", required = true) String email,
-            @RequestParam(name= "password", required = true) String password) {
-        User user = new User(username,email,password);
-        return userRepository.save(user);
+    public ResponseEntity<User> create(@RequestBody User user) {
+        user.setCreatedAt(DateTime.now());
+        user.generateApiKey();
+        user = userRepository.save(user);
+        // Ajoute un rôle par défaut
+        roleRepository.save(new Role(user, Role.ROLE_USER));
+        User newUser = userRepository.findOne(user.getId());
+        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
     /**
-     * Edit a user
+     * Edit an user
      * Parameters in request body (JSON UserObject)
      */
-//    @RequestMapping(value = {"/user","/user/"}, method = RequestMethod.PUT )
-//    @ResponseBody
-//    public User edit(@RequestBody(required = true) User user) {
-//        return userRepository.save(user);
-//    }
-
-    /**
-     * Edit a user
-     * Params in request (urlencoded)
-     * TODO : edit au lieu de new
-     */
-    @RequestMapping(value = {"/user","/user/"}, method = RequestMethod.PUT )
+    @RequestMapping(value = {"/user/{id}"}, method = RequestMethod.PUT)
     @ResponseBody
-    public User editUserByURL(
-            @RequestParam(name= "username", required = false) String username,
-            @RequestParam(name= "email", required = false) String email,
-            @RequestParam(name= "password", required = false) String password) {
-        User user = new User(username,email,password);
-        return userRepository.save(user);
+    public ResponseEntity<User> edit(@PathVariable("id") Long id, @RequestBody User user) {
+
+        User currentUser = userRepository.findById(id);
+        if (user != null) {
+            currentUser.setPassword(user.getPassword());
+            currentUser.setUsername(user.getUsername());
+            currentUser.setEmail(user.getEmail());
+            //  currentUser.setUpdatedAt(DateTime.now());
+            return new ResponseEntity<>(currentUser, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new User(), HttpStatus.NOT_FOUND);
+        }
     }
 
     /**
-     * Delete a user
+     * Delete an user
      * Parameters in request
      */
-    @RequestMapping(value = {"/user","/user/"}, method = RequestMethod.DELETE)
+    @RequestMapping(value = {"/user/{id}"}, method = RequestMethod.DELETE)
     @ResponseBody
-    public boolean deleteUserById(@RequestParam(name = "id", required = true) Long id) {
-        try {
-            if(userRepository.exists(id)) {
-                userRepository.delete(id);
-                return true;
-            } else {
-                // TODO : UserNotFoundException
-            }
-        } catch(Exception e) {
-            // TODO : Bad Request ?
+    public ResponseEntity<User> deleteUserById(@PathVariable("id") Long id) {
+        if (userRepository.exists(id)) {
+            Role role = roleRepository.findByUserId(id);
+            roleRepository.delete(role.getId());
+            userRepository.delete(id);
+            return new ResponseEntity<>(new User(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new User(), HttpStatus.NOT_FOUND);
         }
-        return false;
     }
 
     /**
-     * Delete a user
-     * Parameters in request body (JSON Object)
+     * Retrieve users count
      */
-//    @RequestMapping(value = {"/user","/user/"}, method = RequestMethod.DELETE)
-//    @ResponseBody
-//    public boolean delete(@RequestBody(required = true) User user) {
-//        if(userRepository.exists(user.getId())) {
-//            userRepository.delete(user);
-//            return true;
-//        } else {
-//            // UserNotFoundException
-//        }
-//        return false;
-//    }
-
-    /**
-     * Retrieve one user by his id
-     */
-    @RequestMapping(value = {"/users/count","/users/count/"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/users/count", "/users/count/"}, method = RequestMethod.GET)
     @ResponseBody
     public Long count() {
         return userRepository.count();
     }
 
     /**
-     * Retrieve one user by his id
+     * Check if user exists
      */
-    @RequestMapping(value = {"/user/exists","/user/exists/"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/user/exists/{id}"}, method = RequestMethod.GET)
     @ResponseBody
-    public boolean has(@RequestParam(name = "id", required = true) Long id) {
+    public boolean has(@PathVariable Long id) {
         return userRepository.exists(id);
     }
 }

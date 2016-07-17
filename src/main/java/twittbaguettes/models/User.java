@@ -2,6 +2,7 @@ package twittbaguettes.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 
@@ -13,7 +14,6 @@ import java.util.Set;
 
 /**
  * @author Antoine Cusset
- * @TODO ajouter des constantes de classe pour les roles
  */
 
 @Entity
@@ -21,15 +21,19 @@ import java.util.Set;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private long id;
     private String username;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     private boolean enabled;
     private String email;
-    private Set<Role> role = new HashSet<Role>(0);
+    private Set<Role> role = new HashSet<>(0);
     @JsonIgnore
-    private Set<Message> messages = new HashSet<Message>(0);
+    private Set<Message> messages = new HashSet<>(0);
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String apiKey = "";
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private DateTime createdAt;
 
     /**
@@ -43,7 +47,6 @@ public class User {
         this.email = email;
         this.enabled = true;
         this.createdAt = DateTime.now();
-        // TODO : générer la clé aléatoirement dans un KeyService
         this.apiKey = new BigInteger(60, new SecureRandom()).toString(60);
     }
 
@@ -62,7 +65,7 @@ public class User {
         return this.username;
     }
 
-    @Column(name = "password", unique = false, nullable = false, length = 60)
+    @Column(name = "password", nullable = false, length = 60)
     @JsonIgnore
     public String getPassword() {
         return this.password;
@@ -78,14 +81,14 @@ public class User {
         return this.email;
     }
 
-    @Column(name = "api_key", unique = true, nullable = true, length = 60)
+    @Column(name = "api_key", unique = true, length = 60)
     @JsonIgnore
     public String getApiKey() {
         return this.apiKey;
     }
 
     @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    @Column(name = "created_at", unique = false, nullable = false)
+    @Column(name = "created_at", nullable = false)
     public DateTime getCreatedAt() {
         return createdAt;
     }
@@ -143,12 +146,48 @@ public class User {
     /**
      * Public functions
      */
+
+    /**
+     * @return true if user has at least one role
+     */
+    public boolean hasRole() {
+        return 0 < this.role.size();
+    }
+
+    /**
+     * @param role Role à chercher
+     * @return true if user has specific role
+     */
+    public boolean hasRole(String role) {
+        boolean tmp = false;
+        for(Role r : this.role) {
+            if(r.getRole().equals(role)) {
+                tmp = true;
+                break;
+            }
+        }
+        return tmp;
+    }
+
+    /**
+     * Generate a new API KEY
+     * @return
+     */
+    public String generateApiKey() {
+        this.apiKey = new BigInteger(60, new SecureRandom()).toString(60);
+        return this.apiKey;
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", enabled=" + enabled +
+                ", email='" + email + '\'' +
+                ", role=" + role +
+                ", createdAt=" + createdAt +
                 '}';
     }
-
 }

@@ -63,9 +63,10 @@ public class UserController {
     public ResponseEntity<User> create(@RequestBody User user) {
         user.setCreatedAt(DateTime.now());
         user.generateApiKey();
+//        Role userROle = roleRepository.f
         user = userRepository.save(user);
         // Ajoute un rôle par défaut
-        roleRepository.save(new Role(user, Role.ROLE_USER));
+//        roleRepository.save(new Role(user, Role.ROLE_USER));
         User newUser = userRepository.findOne(user.getId());
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
@@ -83,7 +84,8 @@ public class UserController {
             currentUser.setPassword(user.getPassword());
             currentUser.setUsername(user.getUsername());
             currentUser.setEmail(user.getEmail());
-            //  currentUser.setUpdatedAt(DateTime.now());
+            userRepository.save(currentUser);
+            currentUser.setUpdatedAt(DateTime.now());
             return new ResponseEntity<>(currentUser, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new User(), HttpStatus.NOT_FOUND);
@@ -98,7 +100,7 @@ public class UserController {
     @ResponseBody
     public ResponseEntity<User> deleteUserById(@PathVariable("id") Long id) {
         if (userRepository.exists(id)) {
-            Role role = roleRepository.findByUserId(id);
+            Role role = roleRepository.findById(id);
             roleRepository.delete(role.getId());
             userRepository.delete(id);
             return new ResponseEntity<>(new User(), HttpStatus.OK);

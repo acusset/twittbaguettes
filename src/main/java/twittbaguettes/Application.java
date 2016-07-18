@@ -42,11 +42,18 @@ public class Application {
         User admin = new User("Admin", "admin@gmail.com", "password1");
         User user = new User("User", "user@gmail.com", "password2");
 
-        userRepository.save(admin);
-        roleRepository.save(new Role(admin, Role.ROLE_ADMIN));
+        Role userRole = new Role();
+        userRole.setAuthority(Role.ROLE_USER);
+        Role adminRole = new Role();
+        adminRole.setAuthority(Role.ROLE_ADMIN);
+        roleRepository.save(userRole);
+        roleRepository.save(adminRole);
 
+        admin.addRole(adminRole);
+        user.addRole(userRole);
+
+        userRepository.save(admin);
         userRepository.save(user);
-        roleRepository.save(new Role(userRepository.findByUsername("User"), Role.ROLE_USER));
 
         admin = userRepository.findByUsername("Admin");
         user = userRepository.findByUsername("User");

@@ -10,6 +10,8 @@ import twittbaguettes.models.Role;
  */
 public interface RoleRepository extends CrudRepository<Role, Long> {
 
-    Role findByUserId(Long id);
+    Role findById(Long id);
+
+    Role findByAuthority(String role);
 
 }

@@ -1,0 +1,235 @@
+<!doctype html>
+<html>
+<head>
+    <title>Hello Backbone</title>
+    <!--Import Google Icon Font-->
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+
+<!-- Barre de navigation suppérieure -->
+<nav class="yellow darken-3">
+    <div class="nav-wrapper">
+        <a href="#" class="brand-logo center">Twittbaguettes</a>
+        <ul id="nav-mobile" class="left hide-on-med-and-down">
+            <li><a href="/">Accueil</a></li>
+            <li><a href="#messages">Messages</a></li>
+            <li><a href="#login">Connexion</a></li>
+            <li><a href="#new-message">Nouveau Message</a></li>
+            <li><a href="#me">Compte</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container" id="container" style="margin-top: 3em">
+</div>
+
+<!--Import jQuery before materialize.js-->
+<script type="text/javascript" src="js/jquery-min.js"></script>
+<script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="text/javascript" src="js/underscore.js"></script>
+<script type="text/javascript" src="js/backbone.js"></script>
+<script type="text/javascript" src="js/moment-with-locales.js"></script>
+<!-- Template affichage d'un message -->
+<script type="text/template" id="message-template">
+    <div class="col s12 m6 view">
+        <div class="card grey lighten-2">
+            <% if(img) { %>
+            <div class="card-image">
+                <img src="<%= img %>" alt="" height="300px">
+            </div>
+            <% } %>
+            <div class="card-content grey-text text-darken-3">
+                <p class="flow-text"><%= content %></p>
+                <% if(url) { %>
+                <p><a href="<%= url %>">This is a link</a></p>
+                <% } %>
+                <span>posté par <%= user.username %> <%= fromNow %></span>
+            </div>
+            <div class="card-action">
+                <button class="btn btn-flat">Supprimer</button>
+                <button class="btn btn-flat">Editer</button>
+            </div>
+        </div>
+    </div>
+</script>
+<!--Formulaire de création de message-->
+<script type="text/template" id="new-message-form-template">
+    <div class="row">
+        <div class="col s12 m12 l12">
+            <div class="card-panel grey lighten-3">
+                <div class="card-content black-text">
+                    <form action="" class="col s12 m12 l12">
+                        <div class="row">
+                            <div class="input-field col s12 m12 l12">
+                                <i class="material-icons prefix">mode_edit</i>
+                                <textarea id="textarea1" class="materialize-textarea" length="254"></textarea>
+                                <label for="textarea1">What's in your mind ?</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12 m12 l12">
+                                <i class="material-icons prefix">link</i>
+                                <input id="icon_link" type="text" class="validate" length="254">
+                                <label for="icon_link">Link</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12 m12 l12">
+                                <i class="material-icons prefix">landscape</i>
+                                <input id="icon_img" type="text" class="validate" length="254">
+                                <label for="icon_img">Image</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-action">
+                    <button class="btn-flat envoyer">Envoyer</button>
+                    <button class="btn-flat">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<!--Formulaire d'édition de message-->
+<script type="text/template" id="edit-message-form-template">
+    <div class="row">
+        <div class="col s12 m12 l12">
+            <div class="card-panel grey lighten-3">
+                <div class="card-content black-text">
+                    <form action="" class="col s12 m12 l12">
+                        <div class="row">
+                            <div class="input-field col s12 m12 l12">
+                                <i class="material-icons prefix">mode_edit</i>
+                                <textarea id="content-textarea" class="materialize-textarea active" length="254"><%= content %></textarea>
+                                <label for="content-textarea">Edit</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12 m12 l12">
+                                <i class="material-icons prefix">link</i>
+                                <input id="icon_link" type="text" class="validate active" length="254" value="test">
+                                <label for="icon_link">Link</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12 m12 l12">
+                                <i class="material-icons prefix">landscape</i>
+                                <input id="icon_img" type="text" class="validate" length="254" class="active">
+                                <label for="icon_img">Image</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-action">
+                    <button class="btn btn-flat">Envoyer</button>
+                    <button class="btn btn-flat">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<!--Formulaire de connexion-->
+<script type="text/template" id="login-form">
+    <div class="row">
+        <div class="col s12 m12 l12">
+            <div class="card-panel grey lighten-3">
+                <div class="card-content black-text">
+                    <form action="" class="col s12 m12 l12">
+                        <div class="row">
+                            <div class="input-field col s12 m6 l6">
+                                <i class="material-icons prefix">account_circle</i>
+                                <input id="icon_user" type="text" class="validate">
+                                <label for="icon_user">Username</label>
+                            </div>
+                            <div class="input-field col s12 m6 l6">
+                                <i class="material-icons prefix">lock</i>
+                                <input id="password" type="password" class="validate">
+                                <label for="password">Password</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-action">
+                    <button class="btn-flat">Se connecter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<!-- Formulaire de création de compte -->
+<script type="text/template" id="sign-in-form-template">
+    <div class="row">
+        <div class="col s12 m12 l12">
+            <div class="card-panel grey lighten-3">
+                <div class="card-content black-text">
+                    <form action="" class="col s12 m12 l12">
+                        <div class="row">
+                            <div class="input-field col s12 m6 l6">
+                                <i class="material-icons prefix">account_circle</i>
+                                <input id="icon_user" type="text" class="validate" length="60">
+                                <label for="icon_user">Username</label>
+                            </div>
+                            <div class="input-field col s12 m6 l6">
+                                <i class="material-icons prefix">lock</i>
+                                <input id="password" type="password" class="validate" length="60">
+                                <label for="password">Password</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12 m12 l12">
+                                <i class="material-icons prefix">email</i>
+                                <input id="email" type="email" class="validate" length="254">
+                                <label for="email">E-mail</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-action">
+                    <button class="btn-flat">Envoyer</button>
+                    <button class="btn-flat">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/template" id="user-template">
+    <div class="row">
+        <div class="col s12 m12 l12">
+            <div class="card grey lighten-3">
+                <div class="card-content black-text">
+
+                        <span class="card-title">Card Title</span>
+                        <p>I am a very simple card. I am good at containing small bits of information.
+                            I am convenient because I require little markup to use effectively.</p>
+                    </div>
+                    <div class="card-action">
+                        <a href="#">This is a link</a>
+                        <a href="#">This is a link</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<!-- Fichiers backbones pour l'application -->
+<script type="text/javascript" src="app/appRouter.js"></script>
+<script type="text/javascript" src="app/models/Message.js"></script>
+<script type="text/javascript" src="app/models/User.js"></script>
+<script type="text/javascript" src="app/collections/MessageCollection.js"></script>
+<script type="text/javascript" src="app/views/MessageView.js"></script>
+<script type="text/javascript" src="app/views/NewMessageFormView.js"></script>
+<script type="text/javascript" src="app/views/EditMessageFormView.js"></script>
+<script type="text/javascript" src="app/views/MessagesView.js"></script>
+<script type="text/javascript" src="app/views/LoginFormView.js"></script>
+<!--<script type="text/javascript" src="app/views/SignInFormView.js"></script>-->
+<script type="text/javascript" src="app/views/UserView.js"></script>
+<script type="text/javascript" src="app.js"></script>
+</body>
+</html>

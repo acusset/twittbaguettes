@@ -1,8 +1,11 @@
 package twittbaguettes.controllers;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import twittbaguettes.models.Message;
@@ -29,128 +32,91 @@ public class MessageController {
     @RequestMapping(value = {"/messages", "/messages/"}, method = RequestMethod.GET)
     @ResponseBody
     public Page<Message> getMessages(
-        @RequestParam(name = "page", required = false, 	defaultValue = "0") int page,
-        @RequestParam(name = "perPage", required = false, defaultValue = "5") int perPage) {
+            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(name = "perPage", required = false, defaultValue = "10") int perPage) {
         // Page par défaut 0, 10 messages par page
-        PageRequest paginator = new PageRequest(page,perPage);
+        PageRequest paginator = new PageRequest(page, perPage);
         return messageRepository.findAll(paginator);
     }
 
     /**
      * Retrieve one message by his id
      */
-    @RequestMapping(value = {"/message","/message/"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/message/{id}"}, method = RequestMethod.GET)
     @ResponseBody
-    public Message getMessage(@RequestParam(name = "id", required = true) String id) {
-        Long identifier = new Long(id);
-        if(messageRepository.exists(identifier)) {
-            return messageRepository.findOne(identifier);
+    public ResponseEntity<Message> getMessage(@PathVariable("id") Long id) {
+        Message message = messageRepository.findOne(id);
+        if (message == null) {
+            return new ResponseEntity<>(new Message(), HttpStatus.NOT_FOUND);
         } else {
-            // TODO : Message Not Found Exception
+            return new ResponseEntity<>(message, HttpStatus.OK);
         }
-        return null;
     }
 
     /**
      * Create a message
      * Parameters in request body (JSON object)
      */
-//    @RequestMapping(value = {"/message","/message/"}, method = RequestMethod.POST )
-//    @ResponseBody
-//    public Message create(@RequestBody(required = true) Message message) {
-//        return messageRepository.save(message);
-//    }
-    
-    /**
-     * Create a message
-     * Parameters in request param (urlencoded) 
-     */
-    @RequestMapping(value = {"/message","/message/"}, method = RequestMethod.POST )
+    @RequestMapping(value = {"/message", "/message/"}, method = RequestMethod.POST)
     @ResponseBody
-    public Message createMessage(
-            @RequestParam(name= "content", required = true) String content,
-            @RequestParam(name= "url", required = false, defaultValue = "") String url,
-            @RequestParam(name= "img", required = false, defaultValue = "") String img) {
-        Message message = new Message(content,img,url);
-        message.setUser(userRepository.findByUsername("Admin"));
-        return messageRepository.save(message);
+    public ResponseEntity<Message> createMessage(@RequestBody Message message) {
+        message.setCreatedAt(DateTime.now());
+        message.setUser(userRepository.findByUsername("User"));
+        Long id = messageRepository.save(message).getId();
+
+        return new ResponseEntity<>(messageRepository.findOne(id), HttpStatus.OK);
     }
 
     /**
      * Edit a message
      * Parameters in request body (JSON MessageObject)
      */
-    @RequestMapping(value = {"/message","/message/"}, method = RequestMethod.PUT )
+    @RequestMapping(value = {"/message/{id}"}, method = RequestMethod.PUT)
     @ResponseBody
-    public Message edit(@RequestBody(required = true) Message message) {
-        return messageRepository.save(message);
+    public ResponseEntity<Message> edit(@PathVariable("id") Long id, @RequestBody Message message) {
+        if (messageRepository.exists(id)) {
+            Message currentMessage = messageRepository.findOne(id);
+            currentMessage.setContent(message.getContent());
+            currentMessage.setUrl(message.getUrl());
+            currentMessage.setImg(message.getImg());
+            currentMessage.setUpdatedAt(DateTime.now());
+            messageRepository.save(currentMessage);
+            return new ResponseEntity<>(currentMessage, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new Message(), HttpStatus.NOT_FOUND);
+        }
     }
-
-    /**
-     * Edit a message
-     * Params in request (urlencoded)
-     */
-//    @RequestMapping(value = {"/message","/message/"}, method = RequestMethod.PUT )
-//    @ResponseBody
-//    public Message editMessageByURL(
-//            @RequestParam(name= "content", required = false) String content,
-//            @RequestParam(name= "url", required = false) String url,
-//            @RequestParam(name= "img", required = false) String img) {
-//                Message message = new Message(content,url,img);
-//        return messageRepository.save(message);
-//    }
 
     /**
      * Delete a message
      * Parameters in request
      */
-    @RequestMapping(value = {"/message","/message/"}, method = RequestMethod.DELETE)
+    @RequestMapping(value = {"/message/{id}"}, method = RequestMethod.DELETE)
     @ResponseBody
-    public boolean deleteMessageById(@RequestParam(name = "id", required = true) Long id) {
-        try {
-            if(messageRepository.exists(id)) {
-               messageRepository.delete(id);
-                return true;
-            } else {
-                // TODO : MessageNotFoundException
-            }
-        } catch(Exception e) {
-            // TODO : Bad Request ?
+    public ResponseEntity<Message> deleteMessageById(@PathVariable("id") Long id) {
+        if(messageRepository.exists(id)) {
+            messageRepository.delete(id);
+            return new  ResponseEntity<>(new Message(), HttpStatus.OK);
+        } else {
+            return new  ResponseEntity<>(new Message(), HttpStatus.NOT_FOUND);
         }
-        return false;
     }
-    
-    /**
-     * Delete a message
-     * Parameters in request body (JSON Object)
-     */
-//    @RequestMapping(value = {"/message","/message/"}, method = RequestMethod.DELETE)
-//    @ResponseBody
-//    public boolean delete(@RequestBody(required = true) Message message) {
-//        if(messageRepository.exists(message.getId())) {
-//           messageRepository.delete(message);
-//            return true;
-//        } else {
-//            // MessageNotFoundException
-//        }
-//        return false;
-//    }
 
     /**
-     * Retrieve one message by his id
+     * Retrieve messages count
      */
-    @RequestMapping(value = {"/message/count","/message/count/"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/message/count", "/message/count/"}, method = RequestMethod.GET)
     @ResponseBody
     public Long countMessages() {
         return messageRepository.count();
     }
 
     /**
-     * Retrieve one message by his id
+     * Check if message exists
      */
-    @RequestMapping(value = {"/message/exists","/message/exists/"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/message/exists/{id}"}, method = RequestMethod.GET)
     @ResponseBody
-    public boolean has(@RequestParam(name = "id", required = true) Long id) {
+    public boolean has(@PathVariable("id") Long id) {
         return messageRepository.exists(id);
     }
 

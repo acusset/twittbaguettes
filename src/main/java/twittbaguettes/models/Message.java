@@ -1,7 +1,7 @@
 package twittbaguettes.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 import twittbaguettes.repositories.UserRepository;
@@ -11,15 +11,14 @@ import java.io.Serializable;
 
 /**
  * Message Model
- *
- * @Column est destiné à la base de données
- * @NotNull et @Size pour les validateurs Spring (à venir...)
  */
 @Entity
 @Table(name = "messages")
 public class Message implements Serializable {
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private long id;
+
     /**
      * Le contenu du message / texte
      */
@@ -38,11 +37,20 @@ public class Message implements Serializable {
     /**
      * Timestamp de création
      */
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private DateTime createdAt;
+
+    /**
+     * Timestamp d'édition
+     */
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private DateTime updatedAt;
 
     /**
      * L'auteur du message
      */
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonManagedReference
     private User user;
 
     private UserRepository userRepository;
@@ -51,7 +59,8 @@ public class Message implements Serializable {
      * Constructors
      */
 
-    public Message() { }
+    public Message() {
+    }
 
     public Message(String content, User user) {
         this.content = content;
@@ -74,30 +83,36 @@ public class Message implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false, insertable = true, updatable = true)
+    @Column(name = "id", nullable = false)
     public long getId() {
         return id;
     }
 
-    @Column(name = "content", unique = false, nullable = false, length = 254)
+    @Column(name = "content", nullable = false, length = 254)
     public String getContent() {
         return content;
     }
 
-    @Column(name = "url", unique = false, nullable = true, length = 254)
+    @Column(name = "url", length = 254)
     public String getUrl() {
         return url;
     }
 
-    @Column(name = "img", unique = false, nullable = true, length = 254)
+    @Column(name = "img", length = 254)
     public String getImg() {
         return img;
     }
 
     @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    @Column(name = "created_at", unique = false, nullable = false)
+    @Column(name = "created_at", nullable = false)
     public DateTime getCreatedAt() {
         return createdAt;
+    }
+
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    @Column(name = "updated_at")
+    public DateTime getUpdatedAt() {
+        return updatedAt;
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -130,12 +145,15 @@ public class Message implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public void setUpdatedAt(DateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public void setUser(User user) {
         this.user = user;
     }
 
     /**
-     * TODO : déplacer dans un MessageService
      * Désinfecte le message avant de l'enregistrer
      * - Suppression des espaces superflux
      * - Injection de code

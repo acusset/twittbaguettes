@@ -1,27 +1,25 @@
-/**
- * Created by Hugo on 21/06/2016.
- */
-
 var Message = Backbone.Model.extend({
 
-    initialize: function () {
-        
+    initialize: function (data) {
+        this.createdAt = new moment(data.createdAt);
+        this.set("fromNow", this.createdAt.fromNow());
     },
 
     defaults: {
-        id: "",
         content: "Default message",
         createdAt: "",
+        updatedAt: "",
         img: "",
         url: "",
-        author: ""
+        author: "",
+        fromNow: ""
     },
 
     idAttribute: "id",
 
-    urlRoot: "/message",
+    urlRoot: "/message"
 
-    url: function () {
-        return this.urlRoot + "?id=" + this.id
-    }
+    // url: function () {
+    //     return this.urlRoot + "?id=" + this.id
+    // }
 });

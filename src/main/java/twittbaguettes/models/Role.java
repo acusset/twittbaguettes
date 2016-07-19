@@ -3,8 +3,11 @@ package twittbaguettes.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
+import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Twittbaguettes
@@ -14,24 +17,19 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "roles")
-public class Role {
+public class Role implements GrantedAuthority {
 
     public final static String ROLE_ADMIN = "ADMIN";
     public final static String ROLE_USER = "USER";
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private long id;
-    @JsonIgnore
-    private User user;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private String role;
+    private String authority;
+    @JsonIgnore
+    private Collection<User> users = new HashSet<>(0);
 
     public Role() { }
-
-    public Role(User user, String role) {
-        this.role = role;
-        this.user = user;
-    }
 
     /**
      * Getters
@@ -43,29 +41,30 @@ public class Role {
         return id;
     }
 
-    @Column(name = "role", nullable = false, length = 50)
-    public String getRole() {
-        return role;
+    @Override
+    @Column(name = "authority", nullable = false, length = 50)
+    public String getAuthority() {
+        return authority;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    public User getUser() {
-        return user;
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "authorities")
+    public Collection<User> getUsers() {
+        return this.users;
     }
 
     /**
      * Setters
      */
-    public void setRole(String role) {
-        this.role = role;
-    }
 
     public void setId(long id) {
         this.id = id;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setAuthority(String authority) {
+        this.authority = authority;
+    }
+
+    public void setUsers(Collection<User> users) {
+        this.users = users;
     }
 }

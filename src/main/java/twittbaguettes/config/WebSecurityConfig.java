@@ -12,10 +12,22 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-//        http.authorizeRequests().anyRequest().fullyAuthenticated().and().
-//                httpBasic().and().
-//                csrf().disable();
-        http.csrf().disable();
-    }
+        http
 
+                .formLogin()
+                    .loginPage("/login.html")
+                    .loginProcessingUrl("/loginProcess")
+                    .failureUrl("/login.html?action=error")
+                    .defaultSuccessUrl("/")
+                    .successForwardUrl("/")
+                    .permitAll()
+                .and().authorizeRequests().antMatchers("/app.js").permitAll()
+                .and().authorizeRequests().antMatchers("/app/**").permitAll()
+                .and().authorizeRequests().antMatchers("/**/*.*").permitAll()
+//                .and().authorizeRequests().antMatchers("/css/**").permitAll()
+//                .and().authorizeRequests().antMatchers("/font/**").permitAll()
+//                .and().authorizeRequests().antMatchers("/fonts/**").permitAll()
+                .and().authorizeRequests().anyRequest().authenticated()
+                .and().csrf().disable();
+    }
 }

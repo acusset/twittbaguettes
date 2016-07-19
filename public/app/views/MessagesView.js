@@ -1,8 +1,4 @@
-/**
- * Created by Antoine on 20/06/2016.
- */
-
-var MessagesView = Backbone.View.extend({
+window.MessagesView = Backbone.View.extend({
 
     model: MessagesCollection,
 
@@ -10,9 +6,7 @@ var MessagesView = Backbone.View.extend({
 
     render: function (model) {
 
-        this.$el.html(); // lets render this view
-
-        var self = this;
+        this.$el.html(""); // lets render this view
 
         for (var i = 0; i < this.model.length; ++i) {
             var messageView = new MessageView({model: this.model.at(i)});

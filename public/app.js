@@ -4,13 +4,20 @@
  */
 
 $(document).ready(function () {
+    
+    moment.locale("fr");
+    router = new appRouter;
+    Backbone.history.start();
 
-    var messgesCollection = new MessagesCollection();
-    messgesCollection.fetch({
-        success: function () {
-            var messagesView = new MessagesView({model: messgesCollection});
-            messagesView.render();
-        },
-    });
+
+    // new NewMessageFormView().render();
+    // var message = new Message({id: 2});
+    // message.fetch({
+    //     success: function (data) {
+    //        var tmp = new EditMessageFormView({model: message});
+    //         tmp.render();
+    //         Materialize.updateTextFields();
+    //     }
+    // });
 
 });

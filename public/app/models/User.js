@@ -4,14 +4,17 @@
 
 var User = Backbone.Model.extend({
 
-    initialize: function() {
-        console.log("Initialisation d'un user");
+    initialize: function(attributes) {
+        if(_.has(attributes, "createdAt")) {
+            this.createdAt = new moment(attributes.createdAt);
+            this.set("LastLogin", this.createdAt.fromNow());
+        }
     },
 
     defaults: {
         id: "",
         username: "",
-        createdAt: "",
+        createdAt: new moment(),
         email: "",
         enabled: "",
         apiKey: "",
@@ -20,9 +23,5 @@ var User = Backbone.Model.extend({
 
     idAttribute: "id",
 
-    urlRoot: "/user",
-
-    url: function () {
-        return this.urlRoot + "?id=" + this.id
-    }
+    url: "/user"
 });

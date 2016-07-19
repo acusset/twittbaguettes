@@ -17,4 +17,5 @@ public interface UserRepository extends PagingAndSortingRepository<User,Long> {
     User findByApiKey(String apiKey);
 
     User findById(Long id);
+
 }

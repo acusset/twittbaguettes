@@ -163,4 +163,8 @@ public class Message implements Serializable {
     private void sanitize() {
 
     }
+
+    public boolean isAuthor(User user) {
+        return this.user.equals(user);
+    }
 }

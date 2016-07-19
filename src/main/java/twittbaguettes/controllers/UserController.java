@@ -13,6 +13,8 @@ import twittbaguettes.models.User;
 import twittbaguettes.repositories.RoleRepository;
 import twittbaguettes.repositories.UserRepository;
 
+import java.security.Principal;
+
 /**
  * User Controller define routes ands methods
  */
@@ -47,6 +49,21 @@ public class UserController {
     @ResponseBody
     public ResponseEntity<User> getUser(@PathVariable("id") Long id) {
         User user = userRepository.findOne(id);
+        if (user == null) {
+            return new ResponseEntity<>(new User(), HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        }
+    }
+
+    /**
+     * Return current logged in user
+     */
+    @RequestMapping(value = "/user", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<User> currentUserName(Principal principal) {
+        String username = principal.getName();
+        User user = userRepository.findByUsername(username);
         if (user == null) {
             return new ResponseEntity<>(new User(), HttpStatus.NOT_FOUND);
         } else {

@@ -29,10 +29,13 @@ public class User implements UserDetails {
     private boolean enabled;
 
     @JsonIgnore
+    @Transient
     private boolean accountNonExpired;
     @JsonIgnore
+    @Transient
     private boolean accountNonLocked;
     @JsonIgnore
+    @Transient
     private boolean credentialsNonExpired;
 
     private String email;
@@ -42,16 +45,13 @@ public class User implements UserDetails {
     private Set<Message> messages = new HashSet<>(0);
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String apiKey = "";
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private DateTime createdAt;
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private DateTime updatedAt;
 
     /**
      * Empty Constructor for JPA
      */
-    public User() {
-    }
+    public User() { }
 
     public User(String username, String email, String password) {
         this.username = username;
@@ -121,12 +121,26 @@ public class User implements UserDetails {
         return this.authorities;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        if (this.id != user.getId()) return false;
+        if (this.username != null ? !this.username.equals(user.getUsername()) : user.getUsername() != null) return false;
+        if (this.email != null ? !this.email.equals(user.getEmail()) : user.getEmail() != null) return false;
+        return createdAt != null ? this.createdAt.equals(user.getCreatedAt()) : user.getCreatedAt() == null;
+
+    }
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     public Set<Message> getMessages() {
         return messages;
     }
 
-    /**
+     /**
      * Setters
      */
 
@@ -178,19 +192,22 @@ public class User implements UserDetails {
         this.credentialsNonExpired = credentialsNonExpired;
     }
     /**
-     * Override functions
+     * Public functions
      */
     @Override
+    @Transient
     public boolean isAccountNonExpired() {
         return true;
     }
 
     @Override
+    @Transient
     public boolean isAccountNonLocked() {
         return true;
     }
 
     @Override
+    @Transient
     public boolean isCredentialsNonExpired() {
         return true;
     }
@@ -237,5 +254,15 @@ public class User implements UserDetails {
 
     public void setAccountNonExpired(boolean accountNonExpired) {
 
+    }
+
+    @Transient
+    public boolean isAdmin() {
+        for(Role role : this.getAuthorities()) {
+            if(role.getAuthority().equals(Role.ROLE_ADMIN)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

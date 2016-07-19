@@ -3,7 +3,6 @@ package twittbaguettes.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;

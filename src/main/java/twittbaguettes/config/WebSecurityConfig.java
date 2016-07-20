@@ -18,8 +18,6 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .loginPage("/login.html")
                     .loginProcessingUrl("/loginProcess")
                     .failureUrl("/login.html?action=error")
-                    .defaultSuccessUrl("/")
-                    .successForwardUrl("/")
                     .permitAll()
                 .and().authorizeRequests().antMatchers("/app.js").permitAll()
                 .and().authorizeRequests().antMatchers("/app/**").permitAll()

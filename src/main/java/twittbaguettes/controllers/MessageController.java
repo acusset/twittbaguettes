@@ -4,6 +4,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -35,7 +36,7 @@ public class MessageController {
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "perPage", required = false, defaultValue = "10") int perPage) {
         // Page par défaut 0, 10 messages par page
-        PageRequest paginator = new PageRequest(page, perPage);
+        PageRequest paginator = new PageRequest(page, perPage, new Sort(Sort.Direction.DESC, "createdAt"));
         return messageRepository.findAll(paginator);
     }
 

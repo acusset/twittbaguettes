@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import twittbaguettes.models.Role;
@@ -28,6 +29,8 @@ public class UserController {
     private UserRepository userRepository;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * List all users
@@ -79,11 +82,11 @@ public class UserController {
     @ResponseBody
     public ResponseEntity<User> create(@RequestBody User user) {
         user.setCreatedAt(DateTime.now());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.generateApiKey();
-//        Role userROle = roleRepository.f
+        Role userROle = roleRepository.findByAuthority(Role.ROLE_USER);
+        user.addRole(userROle);
         user = userRepository.save(user);
-        // Ajoute un rôle par défaut
-//        roleRepository.save(new Role(user, Role.ROLE_USER));
         User newUser = userRepository.findOne(user.getId());
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
@@ -99,7 +102,7 @@ public class UserController {
         User currentUser = userRepository.findById(id);
         if (user != null) {
             currentUser.setPassword(user.getPassword());
-            currentUser.setUsername(user.getUsername());
+            currentUser.setPassword(passwordEncoder.encode(user.getPassword()));
             currentUser.setEmail(user.getEmail());
             userRepository.save(currentUser);
             currentUser.setUpdatedAt(DateTime.now());

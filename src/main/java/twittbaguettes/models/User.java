@@ -3,7 +3,9 @@ package twittbaguettes.models;
 import com.fasterxml.jackson.annotation.*;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 import java.math.BigInteger;
@@ -119,20 +121,6 @@ public class User implements UserDetails {
                     @JoinColumn(name = "role_id", nullable = false, updatable = false)})
     public Collection<Role> getAuthorities() {
         return this.authorities;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        User user = (User) o;
-
-        if (this.id != user.getId()) return false;
-        if (this.username != null ? !this.username.equals(user.getUsername()) : user.getUsername() != null) return false;
-        if (this.email != null ? !this.email.equals(user.getEmail()) : user.getEmail() != null) return false;
-        return createdAt != null ? this.createdAt.equals(user.getCreatedAt()) : user.getCreatedAt() == null;
-
     }
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
@@ -265,4 +253,64 @@ public class User implements UserDetails {
         }
         return false;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        if (this.id != user.getId()) return false;
+        if (this.username != null ? !this.username.equals(user.getUsername()) : user.getUsername() != null) return false;
+        if (this.email != null ? !this.email.equals(user.getEmail()) : user.getEmail() != null) return false;
+        return createdAt != null ? this.createdAt.equals(user.getCreatedAt()) : user.getCreatedAt() == null;
+
+    }
+
+/*
+    private Collection<User> followers = new HashSet<>(0);
+    private Collection<User> following = new HashSet<>(0);
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "friends",
+            joinColumns = {
+                    @JoinColumn(name = "user_id", nullable = false, updatable = false)},
+            inverseJoinColumns = {
+                    @JoinColumn(name = "user_followed_id", nullable = false, updatable = false)})
+    public Collection<User> getFollowing() {
+        return following;
+    }
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "friends",
+            joinColumns = {
+                    @JoinColumn(name = "user_followed_id", nullable = false, updatable = false)},
+            inverseJoinColumns = {
+                    @JoinColumn(name = "user_id", nullable = false, updatable = false)})
+    public Collection<User> getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(Collection<User> followers) {
+        this.followers = followers;
+    }
+    public void setFollowing(Collection<User> following) {
+        this.following = following;
+    }
+
+    public boolean addFollower(User user) {
+        return this.followers.add(user);
+    }
+
+    public boolean addFollowing(User user) {
+        return this.following.add(user);
+    }
+
+    public boolean removeFollower(User user) {
+        return this.followers.remove(user);
+    }
+
+    public boolean removeFollowing(User user) {
+        return this.following.remove(user);
+    }*/
 }

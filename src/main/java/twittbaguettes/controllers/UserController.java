@@ -97,19 +97,26 @@ public class UserController {
      */
     @RequestMapping(value = {"/user/{id}"}, method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<User> edit(@PathVariable("id") Long id, @RequestBody User user) {
+    public ResponseEntity<User> edit(@PathVariable("id") Long id, @RequestBody User user, Principal principal) {
 
         User currentUser = userRepository.findById(id);
+        User connectedUser = userRepository.findByUsername(principal.getName());
+
         if (user != null) {
-            currentUser.setPassword(user.getPassword());
-            currentUser.setPassword(passwordEncoder.encode(user.getPassword()));
-            currentUser.setEmail(user.getEmail());
-            userRepository.save(currentUser);
-            currentUser.setUpdatedAt(DateTime.now());
-            return new ResponseEntity<>(currentUser, HttpStatus.OK);
+            if (connectedUser.equals(currentUser) || connectedUser.isAdmin()) {
+                currentUser.setPassword(user.getPassword());
+                currentUser.setPassword(passwordEncoder.encode(user.getPassword()));
+                currentUser.setEmail(user.getEmail());
+                userRepository.save(currentUser);
+                currentUser.setUpdatedAt(DateTime.now());
+                return new ResponseEntity<>(currentUser, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(new User(), HttpStatus.UNAUTHORIZED);
+            }
         } else {
             return new ResponseEntity<>(new User(), HttpStatus.NOT_FOUND);
         }
+
     }
 
     /**
@@ -118,12 +125,18 @@ public class UserController {
      */
     @RequestMapping(value = {"/user/{id}"}, method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<User> deleteUserById(@PathVariable("id") Long id) {
+    public ResponseEntity<User> deleteUserById(@PathVariable("id") Long id, Principal principal) {
+        User connectedUser = userRepository.findByUsername(principal.getName());
         if (userRepository.exists(id)) {
-            Role role = roleRepository.findById(id);
-            roleRepository.delete(role.getId());
-            userRepository.delete(id);
-            return new ResponseEntity<>(new User(), HttpStatus.OK);
+            User user = userRepository.findOne(id);
+            if(connectedUser.isAdmin() || connectedUser.equals(user)) {
+                Role role = roleRepository.findById(id);
+                roleRepository.delete(role.getId());
+                userRepository.delete(id);
+                return new ResponseEntity<>(new User(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(new User(), HttpStatus.UNAUTHORIZED);
+            }
         } else {
             return new ResponseEntity<>(new User(), HttpStatus.NOT_FOUND);
         }

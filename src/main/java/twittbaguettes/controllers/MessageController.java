@@ -10,8 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import twittbaguettes.models.Message;
+import twittbaguettes.models.User;
 import twittbaguettes.repositories.MessageRepository;
 import twittbaguettes.repositories.UserRepository;
+
+import java.security.Principal;
 
 /**
  * Message Controller define routes ands methods
@@ -60,12 +63,16 @@ public class MessageController {
      */
     @RequestMapping(value = {"/message", "/message/"}, method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Message> createMessage(@RequestBody Message message) {
-        message.setCreatedAt(DateTime.now());
-        message.setUser(userRepository.findByUsername("User"));
-        Long id = messageRepository.save(message).getId();
-
-        return new ResponseEntity<>(messageRepository.findOne(id), HttpStatus.OK);
+    public ResponseEntity<Message> createMessage(@RequestBody Message message, Principal principal) {
+        User user = userRepository.findByUsername(principal.getName());
+        if(user != null) {
+            message.setCreatedAt(DateTime.now());
+            message.setUser(user);
+            Long id = messageRepository.save(message).getId();
+            return new ResponseEntity<>(messageRepository.findOne(id), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new Message(), HttpStatus.UNAUTHORIZED);
+        }
     }
 
     /**
@@ -74,15 +81,20 @@ public class MessageController {
      */
     @RequestMapping(value = {"/message/{id}"}, method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<Message> edit(@PathVariable("id") Long id, @RequestBody Message message) {
+    public ResponseEntity<Message> edit(@PathVariable("id") Long id, @RequestBody Message message, Principal principal) {
         if (messageRepository.exists(id)) {
+            User connectedUser = userRepository.findByUsername(principal.getName());
             Message currentMessage = messageRepository.findOne(id);
-            currentMessage.setContent(message.getContent());
-            currentMessage.setUrl(message.getUrl());
-            currentMessage.setImg(message.getImg());
-            currentMessage.setUpdatedAt(DateTime.now());
-            messageRepository.save(currentMessage);
-            return new ResponseEntity<>(currentMessage, HttpStatus.OK);
+            if(currentMessage.isAuthor(connectedUser) || connectedUser.isAdmin()) {
+                currentMessage.setContent(message.getContent());
+                currentMessage.setUrl(message.getUrl());
+                currentMessage.setImg(message.getImg());
+                currentMessage.setUpdatedAt(DateTime.now());
+                messageRepository.save(currentMessage);
+                return new ResponseEntity<>(currentMessage, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(new Message(), HttpStatus.UNAUTHORIZED);
+            }
         } else {
             return new ResponseEntity<>(new Message(), HttpStatus.NOT_FOUND);
         }
@@ -94,10 +106,16 @@ public class MessageController {
      */
     @RequestMapping(value = {"/message/{id}"}, method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Message> deleteMessageById(@PathVariable("id") Long id) {
+    public ResponseEntity<Message> deleteMessageById(@PathVariable("id") Long id, Principal principal) {
         if(messageRepository.exists(id)) {
-            messageRepository.delete(id);
-            return new  ResponseEntity<>(new Message(), HttpStatus.OK);
+            User connectedUser = userRepository.findByUsername(principal.getName());
+            Message message = messageRepository.findOne(id);
+            if(message.isAuthor(connectedUser)) {
+                messageRepository.delete(id);
+                return new  ResponseEntity<>(new Message(), HttpStatus.OK);
+            } else {
+                return new  ResponseEntity<>(new Message(), HttpStatus.UNAUTHORIZED);
+            }
         } else {
             return new  ResponseEntity<>(new Message(), HttpStatus.NOT_FOUND);
         }

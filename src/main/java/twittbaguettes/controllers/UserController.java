@@ -81,14 +81,20 @@ public class UserController {
     @RequestMapping(value = {"/user", "/user/"}, method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<User> create(@RequestBody User user) {
-        user.setCreatedAt(DateTime.now());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.generateApiKey();
-        Role userROle = roleRepository.findByAuthority(Role.ROLE_USER);
-        user.addRole(userROle);
-        user = userRepository.save(user);
-        User newUser = userRepository.findOne(user.getId());
-        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+        if(userRepository.findByUsername(user.getUsername()) == null) {
+            user.setCreatedAt(DateTime.now());
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.generateApiKey();
+
+            Role userROle = roleRepository.findByAuthority(Role.ROLE_USER);
+            user.addRole(userROle);
+            user = userRepository.save(user);
+
+            User newUser = userRepository.findOne(user.getId());
+            return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(new User(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     /**

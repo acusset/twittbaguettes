@@ -41,7 +41,6 @@ public class User implements UserDetails {
     private boolean credentialsNonExpired;
 
     private String email;
-    @JsonManagedReference
     private Collection<Role> authorities = new HashSet<>(0);
     @JsonBackReference
     private Set<Message> messages = new HashSet<>(0);

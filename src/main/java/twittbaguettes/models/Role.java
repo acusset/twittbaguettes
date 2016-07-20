@@ -1,8 +1,7 @@
 package twittbaguettes.models;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
@@ -26,7 +25,7 @@ public class Role implements GrantedAuthority {
     private long id;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String authority;
-    @JsonIgnore
+    @JsonBackReference
     private Collection<User> users = new HashSet<>(0);
 
     public Role() { }

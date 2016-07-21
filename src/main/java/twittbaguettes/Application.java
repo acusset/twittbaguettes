@@ -62,27 +62,15 @@ public class Application {
 //        alexandre.addFollowing(antoine);
 //        alexandre.addFollower(antoine);
 
-        userRepository.save(admin);
-        userRepository.save(antoine);
-        userRepository.save(jolan);
-        userRepository.save(alexandre);
+        admin = userRepository.save(admin);
+        antoine = userRepository.save(antoine);
+        jolan = userRepository.save(jolan);
+        alexandre = userRepository.save(alexandre);
 
-        admin = userRepository.findByUsername("Admin");
-        antoine = userRepository.findByUsername("Antoine");
-
-        messageRepository.save(new Message("Salut, ça va ?", admin));
-        messageRepository.save(new Message("message créé en trouvant un antoine tout seul", antoine));
-        messageRepository.save(new Message("Bienvenue sur Twittbaguettes", jolan));
-
-        // Ajoute des messages aléatoires
-//        for (int i = 50; i <= 250; i++) {
-//            String texte = new BigInteger(i, new SecureRandom()).toString(i);
-//            if (i % 2 == 0) {
-//                messageRepository.save(new Message(texte, admin));
-//            } else {
-//                messageRepository.save(new Message(texte, antoine));
-//            }
-//        }
+        Message message = new Message("Bienvenue sur Twittbaguettes ! Venez vous éclater et poster des photos, images et liens", admin);
+        message.setImg("https://media.giphy.com/media/l46Cq1PUeMFEflvNu/giphy.gif");
+        message.setUrl("https://www.youtube.com/watch?v=tyiKg2IpwCE");
+        messageRepository.save(message);
     }
 
 }

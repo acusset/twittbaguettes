@@ -84,14 +84,16 @@ public class MessageController {
     public ResponseEntity<Message> edit(@PathVariable("id") Long id, @RequestBody Message message, Principal principal) {
         if (messageRepository.exists(id)) {
             User connectedUser = userRepository.findByUsername(principal.getName());
-            Message currentMessage = messageRepository.findOne(id);
-            if(currentMessage.isAuthor(connectedUser) || connectedUser.isAdmin()) {
-                currentMessage.setContent(message.getContent());
-                currentMessage.setUrl(message.getUrl());
-                currentMessage.setImg(message.getImg());
-                currentMessage.setUpdatedAt(DateTime.now());
-                messageRepository.save(currentMessage);
-                return new ResponseEntity<>(currentMessage, HttpStatus.OK);
+            Message oldMessage = messageRepository.findOne(id);
+            if(oldMessage.isAuthor(connectedUser) || connectedUser.isAdmin()) {
+                oldMessage.setContent(message.getContent());
+                oldMessage.setUrl(message.getUrl());
+                oldMessage.setImg(message.getImg());
+                oldMessage.setId(oldMessage.getId());
+                oldMessage.setUpdatedAt(DateTime.now());
+                oldMessage.setUser(connectedUser);
+                messageRepository.save(oldMessage);
+                return new ResponseEntity<>(oldMessage, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(new Message(), HttpStatus.UNAUTHORIZED);
             }

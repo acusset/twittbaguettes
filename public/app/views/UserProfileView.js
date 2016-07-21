@@ -1,15 +1,12 @@
-var UserView = Backbone.View.extend({
+var UserProfileView = Backbone.View.extend({
 
-    tagName: "div",
-    className: "user",
-    id: function () {
-        return this.model.get("id")
-    },
+    el: "div#container",
 
     template: _.template($('#user-template').html()),
     model: User,
 
     render: function () {
+        this.$el.html('');
         this.$el.html(this.template(this.model.attributes));
         return this;
     },

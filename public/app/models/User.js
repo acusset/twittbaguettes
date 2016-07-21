@@ -5,16 +5,18 @@
 var User = Backbone.Model.extend({
 
     initialize: function(attributes) {
-        if(_.has(attributes, "createdAt")) {
-            this.createdAt = new moment(attributes.createdAt);
-            this.set("LastLogin", this.createdAt.fromNow());
-        }
+        this.on("change", function (route, params) {
+            if (_.has(attributes, "createdAt")) {
+                this.createdAt = new moment(attributes.createdAt);
+                this.joinDate = this.createdAt.format("DD MMMM YYYY");
+            }
+        });
     },
 
     defaults: {
         id: "",
-        username: "",
-        createdAt: new moment(),
+        joinDate: "",
+        createdAt: "",
         email: "",
         enabled: "",
         apiKey: "",
@@ -23,5 +25,5 @@ var User = Backbone.Model.extend({
 
     idAttribute: "id",
 
-    url: "/user"
+    urlRoot: "/user"
 });

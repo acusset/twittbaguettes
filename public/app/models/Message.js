@@ -18,8 +18,4 @@ var Message = Backbone.Model.extend({
     idAttribute: "id",
 
     urlRoot: "/message"
-
-    // url: function () {
-    //     return this.urlRoot + "?id=" + this.id
-    // }
 });

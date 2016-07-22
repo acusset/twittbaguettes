@@ -88,7 +88,6 @@ public class UserController {
         if(userRepository.findByUsername(user.getUsername()) == null) {
             user.setCreatedAt(DateTime.now());
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-            user.generateApiKey();
 
             Role userROle = roleRepository.findByAuthority(Role.ROLE_USER);
             user.addRole(userROle);

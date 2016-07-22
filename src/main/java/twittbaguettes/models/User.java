@@ -42,8 +42,6 @@ public class User implements UserDetails {
     private Collection<Role> authorities = new HashSet<>(0);
     @JsonBackReference
     private Set<Message> messages = new HashSet<>(0);
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private String apiKey = "";
     private DateTime createdAt;
     private DateTime updatedAt;
 
@@ -58,7 +56,6 @@ public class User implements UserDetails {
         this.email = email;
         this.enabled = true;
         this.createdAt = DateTime.now();
-        this.apiKey = new BigInteger(60, new SecureRandom()).toString(60);
     }
 
     /**
@@ -90,12 +87,6 @@ public class User implements UserDetails {
     @Column(name = "email", unique = true, nullable = false, length = 254)
     public String getEmail() {
         return this.email;
-    }
-
-    @Column(name = "api_key", unique = true, length = 60)
-    @JsonIgnore
-    public String getApiKey() {
-        return this.apiKey;
     }
 
     @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
@@ -147,10 +138,6 @@ public class User implements UserDetails {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
     }
 
     public void setCreatedAt(DateTime createdAt) {
@@ -221,16 +208,6 @@ public class User implements UserDetails {
 
     public void addRole(Role role) {
         this.authorities.add(role);
-    }
-
-    /**
-     * Generate a new API KEY
-     *
-     * @return String new Api Key
-     */
-    public String generateApiKey() {
-        this.apiKey = new BigInteger(60, new SecureRandom()).toString(60);
-        return this.apiKey;
     }
 
     public void setAccountNonExpired(boolean accountNonExpired) {

@@ -16,6 +16,9 @@ import java.io.Serializable;
 @Table(name = "messages")
 public class Message implements Serializable {
 
+    @Transient
+    private UserRepository userRepository;
+
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private long id;
 
@@ -53,28 +56,22 @@ public class Message implements Serializable {
     @JsonManagedReference
     private User user;
 
-    private UserRepository userRepository;
+    /**
+     * Empty constructor for JPA
+     */
+    public Message() {}
 
     /**
-     * Constructors
+     * Constructor
+     * @param content Le contenu du message
+     * @param user L'auteur du message
      */
-
-    public Message() {
-    }
-
     public Message(String content, User user) {
         this.content = content;
         this.createdAt = DateTime.now();
         this.user = user;
         this.img = null;
         this.url = null;
-    }
-
-    public Message(String content, String img, String url) {
-        this.content = content;
-        this.img = img;
-        this.url = url;
-        this.createdAt = DateTime.now();
     }
 
     /**
@@ -115,7 +112,7 @@ public class Message implements Serializable {
         return updatedAt;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     public User getUser() {
         return user;
@@ -166,8 +163,6 @@ public class Message implements Serializable {
 
     /**
      * TODO : error avec message.getUser() qui renvoit systématiquement le 1er user trouvé en base
-     * @param user
-     * @return
      */
     public boolean isAuthor(User user) {
 //        return this.user.equals(user);

@@ -36,7 +36,6 @@ window.NewMessageFormView = Backbone.View.extend({
         } else {
             Materialize.toast("Ce message est vide !",3000);
         }
-        this.cleanup;
     },
 
     isFormEmpty: function () {

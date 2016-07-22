@@ -25,12 +25,16 @@ public class UserController {
     /**
      * Dependancy Injection
      */
-    @Autowired
     private UserRepository userRepository;
-    @Autowired
     private RoleRepository roleRepository;
-    @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public UserController(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     /**
      * List all users

@@ -5,15 +5,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configurers.GlobalAuthenticationConfigurerAdapter;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import twittbaguettes.repositories.UserRepository;
 import twittbaguettes.services.UserDetailsServiceImpl;
 
 // Gestion de la connexion
@@ -26,8 +20,9 @@ class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 
     /**
      * Indique ce qu'on utilise pour l'authtication et l'encryption
-     * @param auth
-     * @throws Exception
+     *
+     * @param auth L'authentication Manager
+     * @throws Exception Si ça plante
      */
     @Override
     public void init(AuthenticationManagerBuilder auth) throws Exception {
@@ -35,7 +30,7 @@ class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
     }
 
     @Bean
-    protected PasswordEncoder passwordEncoder(){
+    protected PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 

@@ -88,3 +88,7 @@ gradle-app.setting
 
 ### Spring Config Files:
 application.properties
+
+### Sonar Config
+.sonar/
+sonar-project.properties

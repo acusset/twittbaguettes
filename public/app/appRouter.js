@@ -101,7 +101,8 @@ window.appRouter = Backbone.Router.extend({
         user.fetch({
             success: function () {
                 if (user.id == localStorage.getItem("id")) {
-                    var userView = EditUserFormView({model: user});
+                    var userView =  new EditUserFormView({model: user});
+                    console.log("userView");
                     userView.render();
                 } else {
                     Materialize.toast("Vous n'avez le droit de modifier ce user", 5000);

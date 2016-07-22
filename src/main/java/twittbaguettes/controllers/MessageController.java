@@ -22,13 +22,14 @@ import java.security.Principal;
 @Controller
 public class MessageController {
 
-    /**
-     * Dependancy Injection
-     */
-    @Autowired
     private MessageRepository messageRepository;
-    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    public MessageController(MessageRepository messageRepository, UserRepository userRepository) {
+        this.messageRepository = messageRepository;
+        this.userRepository = userRepository;
+    }
 
     /**
      * List all messages
@@ -65,7 +66,7 @@ public class MessageController {
     @ResponseBody
     public ResponseEntity<Message> createMessage(@RequestBody Message message, Principal principal) {
         User user = userRepository.findByUsername(principal.getName());
-        if(user != null) {
+        if (user != null) {
             message.setCreatedAt(DateTime.now());
             message.setUser(user);
             Long id = messageRepository.save(message).getId();
@@ -85,7 +86,7 @@ public class MessageController {
         if (messageRepository.exists(id)) {
             User connectedUser = userRepository.findByUsername(principal.getName());
             Message oldMessage = messageRepository.findOne(id);
-            if(oldMessage.isAuthor(connectedUser) || connectedUser.isAdmin()) {
+            if (oldMessage.isAuthor(connectedUser) || connectedUser.isAdmin()) {
                 oldMessage.setContent(message.getContent());
                 oldMessage.setUrl(message.getUrl());
                 oldMessage.setImg(message.getImg());
@@ -109,17 +110,17 @@ public class MessageController {
     @RequestMapping(value = {"/message/{id}"}, method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Message> deleteMessageById(@PathVariable("id") Long id, Principal principal) {
-        if(messageRepository.exists(id)) {
+        if (messageRepository.exists(id)) {
             User connectedUser = userRepository.findByUsername(principal.getName());
             Message message = messageRepository.findOne(id);
-            if(message.isAuthor(connectedUser)) {
+            if (message.isAuthor(connectedUser)) {
                 messageRepository.delete(id);
-                return new  ResponseEntity<>(new Message(), HttpStatus.OK);
+                return new ResponseEntity<>(new Message(), HttpStatus.OK);
             } else {
-                return new  ResponseEntity<>(new Message(), HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(new Message(), HttpStatus.UNAUTHORIZED);
             }
         } else {
-            return new  ResponseEntity<>(new Message(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new Message(), HttpStatus.NOT_FOUND);
         }
     }
 

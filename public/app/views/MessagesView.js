@@ -17,4 +17,12 @@ window.MessagesView = Backbone.View.extend({
         return this;
     },
 
+    // activeScrollSpy: function () {
+    //
+    //     var options = [
+    //         {selector: ".view", offset: 400, callback: loadMoreMessages}
+    //     ];
+    //     Materialize.scrollFire(options);
+    // }
+
 });

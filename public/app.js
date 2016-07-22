@@ -9,5 +9,4 @@ $(document).ready(function () {
     $(".button-collapse").sideNav();
     window.router = new appRouter;
     Backbone.history.start();
-    
 });

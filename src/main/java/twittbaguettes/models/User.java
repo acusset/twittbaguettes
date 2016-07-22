@@ -3,9 +3,7 @@ package twittbaguettes.models;
 import com.fasterxml.jackson.annotation.*;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 import java.math.BigInteger;
@@ -198,10 +196,6 @@ public class User implements UserDetails {
     public boolean isCredentialsNonExpired() {
         return true;
     }
-
-    /**
-     * Public functions
-     */
 
     /**
      * @return true if user has at least one authorities

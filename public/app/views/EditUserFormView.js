@@ -26,8 +26,8 @@ var EditUserFormView = Backbone.View.extend({
             var context = this;
             newMessage.save({},{
                 success: function() {
-                    context.cleanup();
                     Materialize.toast("Profil édité",3000);
+                    context.cleanup();
                     router.navigate("me", {trigger: true});
                 },
                 error: function() {

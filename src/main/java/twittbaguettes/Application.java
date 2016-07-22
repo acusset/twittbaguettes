@@ -1,9 +1,5 @@
 package twittbaguettes;
 
-/**
- * Twittbaguettes
- */
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -67,9 +63,21 @@ public class Application {
         jolan = userRepository.save(jolan);
         alexandre = userRepository.save(alexandre);
 
-        Message message = new Message("Bienvenue sur Twittbaguettes ! Venez vous éclater et poster des photos, images et liens", admin);
+
+        Message message = new Message("Après notre semaine d'examens réussis", alexandre);
+        message.setImg("http://ljdchost.com/rR82d3o.gif");
+        messageRepository.save(message);
+
+        message = new Message("Cette application envoie du lourd", antoine);
+        messageRepository.save(message);
+
+        message = new Message("Bienvenue sur Twittbaguettes ! Venez vous éclater et poster des photos, images et liens", admin);
         message.setImg("https://media.giphy.com/media/l46Cq1PUeMFEflvNu/giphy.gif");
         message.setUrl("https://www.youtube.com/watch?v=tyiKg2IpwCE");
+        messageRepository.save(message);
+
+        message = new Message("Salut ici, comment ça va ?", jolan);
+        message.setImg("https://media.giphy.com/media/TCOnqmevnGbxm/giphy.gif");
         messageRepository.save(message);
     }
 

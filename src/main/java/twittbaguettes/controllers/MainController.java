@@ -1,9 +1,5 @@
 package twittbaguettes.controllers;
 
-/**
- * Twittbaguettes
- */
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -17,13 +13,12 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class MainController {
 
-    @RequestMapping(value="/logout", method = RequestMethod.GET)
-    public void logoutPage (HttpServletRequest request, HttpServletResponse response) {
+    @RequestMapping(value = "/logout", method = RequestMethod.GET)
+    public void logoutPage(HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null){
+        if (auth != null) {
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
-//        return "redirect:/login?logout";//You can redirect wherever you want, but generally it's a good practice to show login screen again.
     }
 
 }

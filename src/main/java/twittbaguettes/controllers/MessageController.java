@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import twittbaguettes.errors.MessageNotFoundException;
 import twittbaguettes.models.Message;
 import twittbaguettes.models.User;
 import twittbaguettes.repositories.MessageRepository;
@@ -49,12 +50,12 @@ public class MessageController {
      */
     @RequestMapping(value = {"/message/{id}"}, method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Message> getMessage(@PathVariable("id") Long id) {
+    public Message getMessage(@PathVariable("id") Long id) {
         Message message = messageRepository.findOne(id);
         if (message == null) {
-            return new ResponseEntity<>(new Message(), HttpStatus.NOT_FOUND);
+            throw new MessageNotFoundException("Message id " + id + " was not fount in database");
         } else {
-            return new ResponseEntity<>(message, HttpStatus.OK);
+            return message;
         }
     }
 
@@ -70,7 +71,7 @@ public class MessageController {
             message.setCreatedAt(DateTime.now());
             message.setUser(user);
             Long id = messageRepository.save(message).getId();
-            return new ResponseEntity<>(messageRepository.findOne(id), HttpStatus.OK);
+            return new ResponseEntity<>(messageRepository.findOne(id), HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>(new Message(), HttpStatus.UNAUTHORIZED);
         }

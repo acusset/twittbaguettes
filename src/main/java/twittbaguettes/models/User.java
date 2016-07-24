@@ -112,6 +112,7 @@ public class User implements UserDetails {
     }
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+    @Transient
     public Set<Message> getMessages() {
         return messages;
     }

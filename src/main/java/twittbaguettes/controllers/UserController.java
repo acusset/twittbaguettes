@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import twittbaguettes.errors.UserNotFoundException;
 import twittbaguettes.models.Role;
 import twittbaguettes.models.User;
 import twittbaguettes.repositories.RoleRepository;
@@ -18,6 +19,7 @@ import java.security.Principal;
 
 /**
  * User Controller define routes ands methods
+ * TODO : description, status, location, avatar, date de naissance, followers et following, compteur de message, favoris
  */
 @Controller
 public class UserController {
@@ -50,16 +52,20 @@ public class UserController {
     }
 
     /**
+     *
      * Retrieve one user by his id
+     *
+     * @param id L'identidifiant d'un utilisateur
+     * @return L'utilisateur
      */
     @RequestMapping(value = "/user/{id}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<User> getUser(@PathVariable("id") Long id) {
+    public User getUser(@PathVariable("id") Long id) {
         User user = userRepository.findOne(id);
         if (user == null) {
-            return new ResponseEntity<>(new User(), HttpStatus.NOT_FOUND);
+            throw new UserNotFoundException("User id " + id + " not found in database");
         } else {
-            return new ResponseEntity<>(user, HttpStatus.OK);
+            return user;
         }
     }
 

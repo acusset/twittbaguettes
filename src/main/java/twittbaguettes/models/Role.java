@@ -20,8 +20,7 @@ public class Role implements GrantedAuthority {
 
     public final static String ROLE_ADMIN = "ADMIN";
     public final static String ROLE_USER = "USER";
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonIgnore
     private long id;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String authority;

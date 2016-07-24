@@ -11,6 +11,7 @@ import java.io.Serializable;
 
 /**
  * Message Model
+ * TODO : compteur d'édition, compteur de likes, mention & tags
  */
 @Entity
 @Table(name = "messages")
@@ -162,11 +163,12 @@ public class Message implements Serializable {
     }
 
     /**
-     * TODO : error avec message.getUser() qui renvoit systématiquement le 1er user trouvé en base
+     * Teste si l'utisateur est l'auteur du message
+     *
+     * @param user L'utilisateur à comparer
+     * @return true s'il s'agit de l'auteur, false sinon
      */
     public boolean isAuthor(User user) {
-//        return this.user.equals(user);
-//        return this.user.getId() == user.getId();
-        return true;
+        return this.getUser().getId() == user.getId();
     }
 }

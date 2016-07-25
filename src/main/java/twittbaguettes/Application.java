@@ -54,15 +54,17 @@ public class Application {
         jolan.addRole(userRole);
         alexandre.addRole(adminRole);
 
-//        antoine.addFollower(jolan);
-//        alexandre.addFollowing(antoine);
-//        alexandre.addFollower(antoine);
-
         admin = userRepository.save(admin);
         antoine = userRepository.save(antoine);
         jolan = userRepository.save(jolan);
         alexandre = userRepository.save(alexandre);
 
+        antoine.addFollower(jolan);
+        antoine.addFollower(admin);
+        userRepository.save(antoine);
+
+        jolan.addFollower(antoine);
+        userRepository.save(jolan);
 
         Message message = new Message("Après notre semaine d'examens réussis", alexandre);
         message.setImg("http://ljdchost.com/rR82d3o.gif");

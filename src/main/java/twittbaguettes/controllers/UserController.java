@@ -16,6 +16,7 @@ import twittbaguettes.repositories.RoleRepository;
 import twittbaguettes.repositories.UserRepository;
 
 import java.security.Principal;
+import java.util.Collection;
 
 /**
  * User Controller define routes ands methods
@@ -66,6 +67,28 @@ public class UserController {
             throw new UserNotFoundException("User id " + id + " not found in database");
         } else {
             return user;
+        }
+    }
+
+    @RequestMapping(value = "/user/{id}/followers", method = RequestMethod.GET)
+    @ResponseBody
+    public Collection<User> getUserFollowers(@PathVariable("id") Long id) {
+        User user = userRepository.findOne(id);
+        if (user == null) {
+            throw new UserNotFoundException("User id " + id + " not found in database");
+        } else {
+            return user.getFollowers();
+        }
+    }
+
+    @RequestMapping(value = "/user/{id}/following", method = RequestMethod.GET)
+    @ResponseBody
+    public Collection<User> getUserFollowing(@PathVariable("id") Long id) {
+        User user = userRepository.findOne(id);
+        if (user == null) {
+            throw new UserNotFoundException("User id " + id + " not found in database");
+        } else {
+            return user.getFollowing();
         }
     }
 

@@ -45,10 +45,72 @@ public class User implements UserDetails {
     private DateTime createdAt;
     private DateTime updatedAt;
 
+    private Collection<User> followers = new HashSet<>(0);
+    private Collection<User> following = new HashSet<>(0);
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", followers=" + followers +
+                '}';
+    }
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "followers",
+            joinColumns = {
+                    @JoinColumn(name = "user_id", nullable = false)},
+            inverseJoinColumns = {
+                    @JoinColumn(name = "follower_id", nullable = false)})
+    public Collection<User> getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(Collection<User> followers) {
+        this.followers = followers;
+    }
+
+    public boolean addFollower(User user) {
+        return this.getFollowers().add(user);
+    }
+
+    public boolean removeFollower(User user) {
+        return this.getFollowers().contains(user) && this.getFollowers().remove(user);
+    }
+
+    public boolean isFollowedBy(User user) {
+        return this.getFollowers().contains(user);
+    }
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "followers")
+    public Collection<User> getFollowing() {
+        return following;
+    }
+
+    public void setFollowing(Collection<User> following) {
+        this.following = following;
+    }
+
+    public boolean addFollowing(User user) {
+        return this.getFollowing().add(user);
+    }
+
+    public boolean removeFollowing(User user) {
+        return this.getFollowing().contains(user) && this.getFollowing().remove(user);
+    }
+
+    public boolean isFollowing(User user) {
+        return this.getFollowing().contains(user);
+    }
+
     /**
      * Empty Constructor for JPA
      */
-    public User() { }
+    public User() {
+    }
 
     public User(String username, String email, String password) {
         this.username = username;
@@ -102,7 +164,7 @@ public class User implements UserDetails {
     }
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_role",
+    @JoinTable(name = "users_role",
             joinColumns = {
                     @JoinColumn(name = "user_id", nullable = false, updatable = false)},
             inverseJoinColumns = {
@@ -117,7 +179,7 @@ public class User implements UserDetails {
         return messages;
     }
 
-     /**
+    /**
      * Setters
      */
 
@@ -164,6 +226,7 @@ public class User implements UserDetails {
     public void setCredentialsNonExpired(boolean credentialsNonExpired) {
         this.credentialsNonExpired = credentialsNonExpired;
     }
+
     /**
      * Public functions
      */
@@ -217,8 +280,8 @@ public class User implements UserDetails {
 
     @Transient
     public boolean isAdmin() {
-        for(Role role : this.getAuthorities()) {
-            if(role.getAuthority().equals(Role.ROLE_ADMIN)) {
+        for (Role role : this.getAuthorities()) {
+            if (role.getAuthority().equals(Role.ROLE_ADMIN)) {
                 return true;
             }
         }
@@ -233,55 +296,10 @@ public class User implements UserDetails {
         User user = (User) o;
 
         if (this.id != user.getId()) return false;
-        if (this.username != null ? !this.username.equals(user.getUsername()) : user.getUsername() != null) return false;
+        if (this.username != null ? !this.username.equals(user.getUsername()) : user.getUsername() != null)
+            return false;
         if (this.email != null ? !this.email.equals(user.getEmail()) : user.getEmail() != null) return false;
         return createdAt != null ? this.createdAt.equals(user.getCreatedAt()) : user.getCreatedAt() == null;
 
     }
-
-/*
-    private Collection<User> followers = new HashSet<>(0);
-    private Collection<User> following = new HashSet<>(0);
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "friends",
-            joinColumns = {
-                    @JoinColumn(name = "user_id", nullable = false, updatable = false)},
-            inverseJoinColumns = {
-                    @JoinColumn(name = "user_followed_id", nullable = false, updatable = false)})
-    public Collection<User> getFollowing() {
-        return following;
-    }
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "friends",
-            joinColumns = {
-                    @JoinColumn(name = "user_followed_id", nullable = false, updatable = false)},
-            inverseJoinColumns = {
-                    @JoinColumn(name = "user_id", nullable = false, updatable = false)})
-    public Collection<User> getFollowers() {
-        return followers;
-    }
-
-    public void setFollowers(Collection<User> followers) {
-        this.followers = followers;
-    }
-    public void setFollowing(Collection<User> following) {
-        this.following = following;
-    }
-
-    public boolean addFollower(User user) {
-        return this.followers.add(user);
-    }
-
-    public boolean addFollowing(User user) {
-        return this.following.add(user);
-    }
-
-    public boolean removeFollower(User user) {
-        return this.followers.remove(user);
-    }
-
-    public boolean removeFollowing(User user) {
-        return this.following.remove(user);
-    }*/
 }
